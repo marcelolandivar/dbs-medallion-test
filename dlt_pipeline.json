@@ -1,0 +1,20 @@
+
+# =========================
+# DLT PIPELINE CONFIG (JSON)
+# =========================
+# Save as: dlt_pipeline.json
+# Used when deploying pipeline
+{
+  "name": "medallion-pipeline",
+  "storage": "/mnt/${env}/dlt/storage",
+  "target": "${catalog}.${schema}",
+  "continuous": false,
+  "development": true,
+  "libraries": [
+    {
+      "notebook": {
+        "path": "/Repos/your-repo/pipelines/dlt_pipeline"
+      }
+    }
+  ]
+}
