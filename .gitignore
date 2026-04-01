@@ -2,7 +2,6 @@
 # Databricks
 .databricks/
 *.dbc
-databricks.yml
 
 # Virtual Environments
 databricks-env/
