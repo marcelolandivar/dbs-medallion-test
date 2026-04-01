@@ -12,6 +12,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
       - name: Checkout repo
@@ -25,14 +28,8 @@ jobs:
         run: |
           databricks bundle deploy --target prod
         if: github.ref == 'refs/heads/main'
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
       - name: Deploy bundle to dev
         run: |
           databricks bundle deploy --target dev
         if: github.ref == 'refs/heads/dev'
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
