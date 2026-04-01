@@ -1,0 +1,11 @@
+resources:
+  pipelines:
+    pipeline-medallion-test-road:
+      name: Medallion Test Road Pipeline
+      libraries:
+        - glob:
+            include: /Workspace/Users/ferndaguzmanguzman@gmail.com/dbs-medallion-test/common/**
+      serverless: true
+      catalog: dev_catalog
+      schema: ${workspace.current_user.short_name}
+      root_path: /Workspace/Users/ferndaguzmanguzman@gmail.com/dbs-medallion-test
