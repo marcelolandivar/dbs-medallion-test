@@ -7,7 +7,7 @@ name: Deploy Databricks Pipeline
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ dev ]
 
 jobs:
   deploy:
