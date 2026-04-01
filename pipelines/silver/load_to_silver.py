@@ -52,7 +52,7 @@ def write_Roads_to_Silver(StreamingDF,cfg):
     write_StreamSilver_R.awaitTermination()
     print(f'Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_roads` Success!')
 
-def run(env: str):
+def run_silver(env: str):
     spark = SparkSession.getActiveSession()
     cfg = get_config(env, "silver")
 

@@ -1,17 +1,3 @@
-# =========================
-# PROJECT STRUCTURE
-# =========================
-# /pipelines
-#   /bronze/bronze_orders.py
-#   /silver/silver_orders.py
-#   /gold/gold_sales.py
-# /common/transformations.py
-# /common/validations.py
-# /config/config.py
-# /main.py
-
-
-
 
 
 # =========================
@@ -126,7 +112,7 @@ def write_Road_Data(StreamingDF, cfg):
     print('Write Success')
     print("****************************")    
 
-def run(env: str):
+def run_bronze(env: str):
 
     spark = SparkSession.getActiveSession()
     cfg = get_config(env, "bronze")

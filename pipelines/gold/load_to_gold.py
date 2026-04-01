@@ -52,7 +52,7 @@ def write_Roads_to_Gold(StreamingDF,cfg):
     write_gold_roads.awaitTermination()
     print(f'Writing `{cfg.catalog}`.`{cfg.schema}`.`gold_roads` Success!')
 
-def run(env: str):
+def run_gold(env: str):
     spark = SparkSession.getActiveSession()
     cfg = get_config(env, "gold")
 

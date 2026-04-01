@@ -4,15 +4,19 @@ resources:
       name: Job
       queue:
         enabled: true
-
-       tasks:
+      tasks:
          - task_key: script_task
-           notebook_task:
-             notebook_path: /Workspace/Users/ferndaguzmanguzman@gmail.com/dbs-medallion-test/main.py
-       email_notifications:
+           spark_python_task:
+             python_file: ../main.py
+           environment_key: dev
+      environments:
+        - environment_key: dev
+          spec:
+            environment_version: '2'
+      email_notifications:
          on_failure:
            - ferndaguzmanguzman@gmail.com
-       trigger:
+      trigger:
          # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
          periodic:
            interval: 1
