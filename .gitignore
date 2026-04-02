@@ -2,7 +2,6 @@
 # Databricks
 .databricks/
 *.dbc
-databricks.yml
 
 # Virtual Environments
 databricks-env/
@@ -78,3 +77,4 @@ htmlcov/
 .dmypy.json
 dmypy.json
 .pyre/
+TO_DO.txt
