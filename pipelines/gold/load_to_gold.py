@@ -3,7 +3,7 @@
 # =========================
 from pyspark.sql import SparkSession
 from config.config import get_config
-from common.transformations import aggregate_sales, create_LoadTime, create_VehicleIntensity
+from common.transformations import create_LoadTime, create_VehicleIntensity
 
 
 def read_SilverTrafficTable(spk, cfg):

@@ -1,17 +1,16 @@
 # =========================
 # main.py
 # =========================
-import sys
-
-from pipelines.bronze import run_bronze
-from pipelines.silver import run_silver
-from pipelines.gold import run_gold
+import os
+from pipelines.bronze.load_to_bronze import run_bronze
+from pipelines.silver.load_to_silver import run_silver
+from pipelines.gold.load_to_gold import run_gold
 
 
 if __name__ == "__main__":
-    env = sys.argv[1]  # dev or prod
+    env_var = os.getenv("ENVIRONMENT")
 
     # Execute layers sequentially
-    run_bronze(env)
-    run_silver(env)
-    run_gold(env)
+    run_bronze(env_var)
+    run_silver(env_var)
+    run_gold(env_var)

@@ -13,7 +13,6 @@ def remove_Dups(df):
     return df_dup
 
 
-
 def handle_NULLs(df,Columns):
     print('Replacing NULLs of Strings DataType with "Unknown": ', end='')
     df_string = df.fillna('Unknown',subset=Columns)

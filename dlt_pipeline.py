@@ -2,21 +2,39 @@
 # DELTA LIVE TABLES (DLT) VERSION
 # =========================
 import dlt
-from pyspark.sql.functions import col, to_timestamp, sum
+from config.config import get_config
+from config.schema_config import get_traffic_schema
+from pyspark.sql.functions import col, to_timestamp, sum, current_timestamp
+import os
 
-# NOTE: In DLT, config is usually passed via pipeline settings (not Python files)
+env = os.environ.get("ENV", "dev")  # Default to 'dev' if ENV variable is not set 
+cfg = get_config(env, "bronze")
 
-@dlt.table(name="bronze_orders")
-def bronze_orders():
-    return (
-        spark.readStream.format("cloudFiles")
-        .option("cloudFiles.format", "json")
-        .load("/mnt/${env}/raw/orders")
+@dlt.table(name=f"{cfg.schema}.raw_traffic_dlt")
+def bronze_traffic():
+    return  (spark.readStream
+        .format("cloudFiles")
+        .option("cloudFiles.format","csv")
+        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawTrafficLoad/schemaInfer')
+        .option('header','true')
+        .schema(get_traffic_schema())
+        .load(cfg.landing+'/raw_traffic/')
+        .withColumn("Extract_Time", current_timestamp())
     )
 
+@dlt.table(name=f"{cfg.schema}.raw_traffic_dlt")
+def bronze_traffic():
+    return  (spark.readStream
+        .format("cloudFiles")
+        .option("cloudFiles.format","csv")
+        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawTrafficLoad/schemaInfer')
+        .option('header','true')
+        .schema(get_traffic_schema())
+        .load(cfg.landing+'/raw_traffic/')
+        .withColumn("Extract_Time", current_timestamp())
+    )
 
-@dlt.table(name="silver_orders")
-@dlt.expect("valid_order_id", "order_id IS NOT NULL")
+@dlt.table(name="silver")
 def silver_orders():
     df = dlt.read("bronze_orders")
 

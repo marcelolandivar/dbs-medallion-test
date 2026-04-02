@@ -3,7 +3,7 @@
 # =========================
 from pyspark.sql import SparkSession
 from config.config import get_config
-from common.transformations import Motor_Count, create_TransformedTime, ev_Count, handle_NULLs, normalize_orders, remove_Dups, road_Category, road_Type
+from common.transformations import Motor_Count, create_TransformedTime, ev_Count, handle_NULLs, remove_Dups, road_Category, road_Type
 from common.validations import validate_not_null, drop_duplicates
 
 
