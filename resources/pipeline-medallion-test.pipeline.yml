@@ -15,13 +15,13 @@ targets:
   dev:
     default: true
     workspace:
-      root_path: /Users/${workspace.current_user}/dbs-medallion-test
+      root_path: /Users/${workspace.current_user.user_name}/dbs-medallion-test
     variables:
       catalog: "dev_catalog"
       env: "dev"
   prod:
     workspace:
-      root_path: /Users/${workspace.current_user}/dbs-medallion-test
+      root_path: /Users/${workspace.current_user.user_name}/dbs-medallion-test
     variables:
       catalog: "prod_catalog"
       env: "prod"
