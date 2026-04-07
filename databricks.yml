@@ -12,23 +12,33 @@ variables:
     description: The environment to use
   catalog:
     description: The catalog to use
+  host:
+    description: The Databricks workspace host URL
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
   dev:
     mode: development
     default: true
-    workspace:
+    variables:
+      env: dev
+      catalog: dev_catalog
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
-      root_path: /Workspace/Users/${workspace.current_user}/.bundle/${bundle.name}/${bundle.target}
+    workspace:
+      host: ${var.host}
+      root_path: /Workspace/Users/${workspace.current_user.user_name}/.bundle/${bundle.name}/${bundle.target}
 
   # The 'prod' target, used for production deployment.
   prod:
     mode: production
-    workspace:
+    variables:
+      env: prod
+      catalog: prod_catalog
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
+    workspace:
+      host: ${var.host}
       # We always use /Users/ferndaguzmanguzman@gmail.com for all resources to make sure we only have a single copy.
-      root_path: /Workspace/Users/ferndaguzmanguzman@gmail.com/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Users/${workspace.current_user.user_name}/.bundle/${bundle.name}/${bundle.target}
     run_as:
       # This runs as ferndaguzmanguzman@gmail.com in production. We could also use a service principal here,
       # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
