@@ -9,7 +9,7 @@ resources:
            spark_python_task:
              python_file: ../main.py 
              parameters:
-              env: ${var.env}
+              ${var.env}
              source: WORKSPACE
            environment_key: Default
       environments:

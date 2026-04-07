@@ -10,6 +10,8 @@ include:
 variables:
   env:
     description: The environment to use
+  catalog:
+    description: The catalog to use
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
