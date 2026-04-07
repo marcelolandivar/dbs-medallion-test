@@ -11,7 +11,8 @@
 
 dbutils.widgets.text(name="env",defaultValue='',label='Enter the environment in lower case')
 env = dbutils.widgets.get("env")
-
+checkpoint = f"{url}{env}/checkpoints"
+landing = f"{url}{env}/landing"
 # COMMAND ----------
 
 # MAGIC %md

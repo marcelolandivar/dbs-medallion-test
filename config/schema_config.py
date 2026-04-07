@@ -28,3 +28,12 @@ def get_traffic_schema():
             StructField("EV_Bike",IntegerType())
         ])
     return schema
+
+def get_roads_schema():
+    schema = StructType([
+        StructField('Road_ID',IntegerType()),
+        StructField('Road_Category_Id',IntegerType()),
+        StructField('Road_Category',StringType()),
+        StructField('Road_Type',StringType())
+    ])
+    return schema

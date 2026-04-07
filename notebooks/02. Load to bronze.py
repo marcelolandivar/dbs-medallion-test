@@ -1,10 +1,12 @@
 # Databricks notebook source
-# MAGIC %run "/Users/shanmukh@shanmukhsattiraju.com/04. Common"
+# MAGIC %run "/Workspace/Users/ferndaguzmanguzman@gmail.com/dbs-medallion-test/notebooks/04. Common"
 
 # COMMAND ----------
 
 dbutils.widgets.text(name="env",defaultValue='',label='Enter the environment in lower case')
 env = dbutils.widgets.get("env")
+checkpoint = f"{url}{env}/checkpoints"
+landing = f"{url}{env}/landing"
 
 # COMMAND ----------
 
