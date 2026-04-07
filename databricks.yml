@@ -26,7 +26,7 @@ targets:
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
     workspace:
       host: dbc-f68e7a30-2eef.cloud.databricks.com/
-      root_path: /Workspace/Users/${workspace.current_user.user_name}/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Repos/data/dbs-medallion-test/
 
   # The 'prod' target, used for production deployment.
   prod:
@@ -37,7 +37,7 @@ targets:
     workspace:
       host: dbc-f68e7a30-2eef.cloud.databricks.com/
       # We always use /Users/ferndaguzmanguzman@gmail.com for all resources to make sure we only have a single copy.
-      root_path: /Workspace/Users/${workspace.current_user.user_name}/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Repos/data/dbs-medallion-test/
     run_as:
       # This runs as ferndaguzmanguzman@gmail.com in production. We could also use a service principal here,
       # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
