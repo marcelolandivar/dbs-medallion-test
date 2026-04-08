@@ -20,7 +20,7 @@ targets:
       env: dev
     workspace:
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
-      root_path: /Workspace/.bundle/${bundle.name}/${bundle.target}
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
 
   # The 'prod' target, used for production deployment.
   prod:
@@ -30,7 +30,7 @@ targets:
     workspace:
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
       # We always use /Users/ferndaguzmanguzman@gmail.com for all resources to make sure we only have a single copy.
-      root_path: /Workspace/.bundle/${bundle.name}/${bundle.target}
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
     run_as:
       # This runs as ferndaguzmanguzman@gmail.com in production. We could also use a service principal here,
       # see https://docs.databricks.com/dev-tools/bundles/permissions.html.

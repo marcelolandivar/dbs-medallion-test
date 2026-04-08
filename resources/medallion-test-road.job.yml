@@ -12,7 +12,7 @@ resources:
            environment_key: Default
       parameters:
         - name: env
-          default: ${variables.env}
+          default: dev
       environments:
         - environment_key: Default
           spec:
