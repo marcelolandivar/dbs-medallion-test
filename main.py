@@ -1,7 +1,6 @@
 # =========================
 # main.py
 # =========================
-import sys
 from pipelines.bronze.load_to_bronze import run_bronze
 from pipelines.silver.load_to_silver import run_silver
 from pipelines.gold.load_to_gold import run_gold
