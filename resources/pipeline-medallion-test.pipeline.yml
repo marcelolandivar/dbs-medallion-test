@@ -15,11 +15,11 @@ targets:
   dev:
     default: true
     workspace:
-      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Users/ferndaguzmanguzman@gmail.com/dbs-medallion-test/
     variables:
       env: "dev"
   prod:
     workspace:
-      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Users/ferndaguzmanguzman@gmail.com/dbs-medallion-test/
     variables:
       env: "prod"
