@@ -3,6 +3,7 @@ resources:
     medallion_pipeline:
       name: medallion-pipeline
       catalog: dev_catalog
+      target: medallion_schema
       serverless: true
       development: true
       continuous: false

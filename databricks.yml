@@ -2,6 +2,14 @@
 bundle:
   name: "Project code"
 
+# Grant permissions to users/service principals who can deploy this bundle
+permissions:
+  - level: CAN_MANAGE
+    user_name: ferndaguzmanguzman@gmail.com
+  # Add your GitHub Actions service principal here:
+  # - level: CAN_MANAGE
+  #   service_principal_name: "<your-service-principal-app-id>"
+
 include:
   - resources/*.yml
   - resources/*/*.yml
@@ -10,11 +18,7 @@ include:
 variables:
   env:
     description: The environment to use
-  
-
-permissions:
-  - level: CAN_MANAGE
-    user_name: "ferndaguzmanguzman@gmail.com"
+    default: dev
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
