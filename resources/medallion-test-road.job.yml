@@ -7,7 +7,7 @@ resources:
       tasks:
          - task_key: script_task
            spark_python_task:
-             python_file: ../main.py 
+             python_file: ./main.py 
              parameters:
               ${var.env}
              source: WORKSPACE

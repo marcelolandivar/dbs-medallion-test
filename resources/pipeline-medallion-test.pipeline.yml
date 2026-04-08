@@ -9,7 +9,7 @@ resources:
       channel: CURRENT
       libraries:
         - file:
-            path: ../dlt_pipeline.py
+            path: ./dlt_pipeline.py
 
 targets:
   dev:
@@ -17,11 +17,9 @@ targets:
     workspace:
       root_path: /Workspace/Users/ferndaguzmanguzman@gmail.com/dbs-medallion-test/
     variables:
-      catalog: "dev_catalog"
       env: "dev"
   prod:
     workspace:
       root_path: /Workspace/Users/ferndaguzmanguzman@gmail.com/dbs-medallion-test/
     variables:
-      catalog: "prod_catalog"
       env: "prod"

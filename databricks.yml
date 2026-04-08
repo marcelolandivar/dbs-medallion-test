@@ -10,9 +10,7 @@ include:
 variables:
   env:
     description: The environment to use
-  catalog:
-    description: The catalog to use
-    
+
 targets:
   # The 'dev' target, for development purposes. This target is the default.
   dev:
@@ -20,7 +18,6 @@ targets:
     default: true
     variables:
       env: dev
-      catalog: dev_catalog
     workspace:
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
       root_path: /Workspace/Users/${workspace.current_user.userName}/.databricks/bundle/${bundle.target}
@@ -30,7 +27,6 @@ targets:
     mode: production
     variables:
       env: prod
-      catalog: prod_catalog
     workspace:
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
       # We always use /Users/ferndaguzmanguzman@gmail.com for all resources to make sure we only have a single copy.
