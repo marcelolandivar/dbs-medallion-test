@@ -28,9 +28,7 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-        run: |
-          cd dbs-medallion-test
-          databricks bundle deploy --target dev
+        run: databricks bundle deploy --target dev
 
   validate-and-deploy-prod:
     runs-on: ubuntu-latest
@@ -54,6 +52,4 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-        run: |
-          cd dbs-medallion-test
-          databricks bundle deploy --target prod 
+        run: databricks bundle deploy --target prod 
