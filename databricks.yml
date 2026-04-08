@@ -5,11 +5,7 @@ bundle:
 # Grant permissions to users/service principals who can deploy this bundle
 permissions:
   - level: CAN_MANAGE
-    user_name: ferndaguzmanguzman@gmail.com
-  # Add your GitHub Actions service principal here:
-  # - level: CAN_MANAGE
-  #   service_principal_name: "<your-service-principal-app-id>"
-
+    service_principal_name: "a76aaeca-00b8-4e18-aad3-e94b43d51bc8"
 include:
   - resources/*.yml
   - resources/*/*.yml
