@@ -9,7 +9,7 @@ resources:
       channel: CURRENT
       libraries:
         - file:
-            path: ./dlt_pipeline.py
+            path: ../dlt_pipeline.py
 
 targets:
   dev:
