@@ -17,16 +17,16 @@ jobs:
         uses: databricks/setup-cli@main
 
       - name: Validate Bundle for Dev
-        run: databricks bundle validate --target dev
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle validate --target dev
 
       - name: Deploy to Dev
-        run: databricks bundle deploy --target dev
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle deploy --target dev --auto-approve
 
   validate-and-deploy-prod:
     runs-on: ubuntu-latest

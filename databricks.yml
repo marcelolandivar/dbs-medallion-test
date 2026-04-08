@@ -10,6 +10,11 @@ include:
 variables:
   env:
     description: The environment to use
+  
+
+permissions:
+  - level: CAN_MANAGE
+    user_name: "ferndaguzmanguzman@gmail.com"
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
