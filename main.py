@@ -8,7 +8,9 @@ from pipelines.gold.load_to_gold import run_gold
 
 
 if __name__ == "__main__":
-    env_var = sys.argv[1] if len(sys.argv) > 1 else "dev"
+    # Get the environment from the query parameter
+    env_var = dbutils.widgets.get("env")
+    print(f"Running with environment: {env_var}")
 
     # Execute layers sequentially
     run_bronze(env_var)
