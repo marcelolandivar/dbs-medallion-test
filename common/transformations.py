@@ -53,14 +53,15 @@ def create_TransformedTime(df):
     return df_timestamp
 
 def create_VehicleIntensity(df):
- from pyspark.sql.functions import col
- print('Creating Vehicle Intensity column : ',end='')
- df_veh = df.withColumn('Vehicle_Intensity',
-               col('Motor_Vehicles_Count') / col('Link_length_km')
-               )
- print("Success!!!")
- print('***************')
- return df_veh
+    from pyspark.sql.functions import col
+    print('Creating Vehicle Intensity column : ',end='')
+    df.show(5)
+    df_veh = df.withColumn('Vehicle_Intensity',
+                col('Motor_Vehicles_Count') / col('Link_length_km')
+                )
+    print("Success!!!")
+    print('***************')
+    return df_veh
 
 def create_LoadTime(df):
     from pyspark.sql.functions import current_timestamp
