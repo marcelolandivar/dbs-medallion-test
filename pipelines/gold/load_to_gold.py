@@ -13,7 +13,7 @@ def read_SilverTrafficTable(spk, cfg):
                     )
     print(f'Reading {cfg.catalog}.silver.silver_traffic Success!')
     print("**********************************")
-    return 
+    return df_SilverTraffic
 
 def read_SilverRoadsTable(spk, cfg):
     print('Reading the Silver Table Silver_roads Data : ',end='')
