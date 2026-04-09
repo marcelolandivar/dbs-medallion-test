@@ -23,6 +23,7 @@ targets:
     default: true
     variables:
       env: dev
+      development: true
     workspace:
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
       root_path: ~/.bundle/${bundle.name}/${bundle.target}
@@ -32,6 +33,7 @@ targets:
     mode: production
     variables:
       env: prod
+      development: false
     workspace:
       host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
       # We always use /Users/ferndaguzmanguzman@gmail.com for all resources to make sure we only have a single copy.

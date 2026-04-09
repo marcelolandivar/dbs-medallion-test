@@ -1,15 +1,17 @@
 # =========================
 # DELTA LIVE TABLES (DLT) VERSION
 # =========================
+import sys
+
 import dlt
 from config.config import get_config
 from config.schema_config import get_traffic_schema, get_roads_schema
 from common.transformations import remove_Dups, handle_NULLs, ev_Count, Motor_Count, create_TransformedTime, create_VehicleIntensity, create_LoadTime, road_Category, road_Type
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_timestamp, sum, current_timestamp
-import os
 
-env = os.environ.get("ENV", "dev")  # Default to 'dev' if ENV variable is not set 
+env = sys.argv[1] if len(sys.argv) > 1 else "dev"
+print(f"Running with environment: {env}")
 cfg = get_config(env, "bronze")
 
 @dlt.table(name=f"bronze.raw_traffic_dlt")
