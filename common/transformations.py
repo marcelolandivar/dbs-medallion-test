@@ -53,10 +53,10 @@ def create_TransformedTime(df):
     return df_timestamp
 
 def create_VehicleIntensity(df):
-    from pyspark.sql.functions import col
+    from pyspark.sql.functions import col, try_divide
     print('Creating Vehicle Intensity column : ',end='')
     df_veh = df.withColumn('Vehicle_Intensity',
-                col('Motor_Vehicles_Count') / col('Link_length_km')
+                try_divide(col('Motor_Vehicles_Count'), col('Link_length_km'))
                 )
     print("Success!!!")
     print('***************')
