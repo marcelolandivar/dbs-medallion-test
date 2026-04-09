@@ -15,6 +15,9 @@ variables:
   env:
     description: The environment to use
     default: dev
+  development:
+    description: Whether this is a development deployment
+    default: true
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
