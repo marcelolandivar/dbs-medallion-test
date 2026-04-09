@@ -4,6 +4,8 @@ resources:
       name: Job
       queue:
         enabled: true
+      run_as:
+        service_principal_name: "a76aaeca-00b8-4e18-aad3-e94b43d51bc8"
       tasks:
          - task_key: script_task
            spark_python_task:
