@@ -1,17 +1,28 @@
 # =========================
 # main.py
 # =========================
+import sys
+from pyspark.sql import SparkSession
 from pipelines.bronze.load_to_bronze import run_bronze
 from pipelines.silver.load_to_silver import run_silver
 from pipelines.gold.load_to_gold import run_gold
 
 
 if __name__ == "__main__":
-    # Get the environment from the query parameter
-    env_var = dbutils.widgets.get("env")
+    # Initialize or get existing Spark session
+    spark = SparkSession.builder \
+        .appName("Medallion Architecture Pipeline") \
+        .getOrCreate()
+    
+    # Get the environment from command-line argument (passed from job parameter)
+    # Default to 'dev' if not provided
+    env_var = sys.argv[1] if len(sys.argv) > 1 else "dev"
     print(f"Running with environment: {env_var}")
 
     # Execute layers sequentially
     run_bronze(env_var)
     run_silver(env_var)
     run_gold(env_var)
+    
+    # Stop the Spark session
+    spark.stop()

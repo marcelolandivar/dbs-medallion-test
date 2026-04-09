@@ -7,12 +7,13 @@ resources:
       tasks:
          - task_key: script_task
            spark_python_task:
-             python_file: ../main.py 
+             python_file: ../main.py
+             parameters: ["{{job.parameters.env}}"]
              source: WORKSPACE
            environment_key: Default
       parameters:
         - name: env
-          default: dev
+          default: "dev"
       environments:
         - environment_key: Default
           spec:
