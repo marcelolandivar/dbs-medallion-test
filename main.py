@@ -16,6 +16,7 @@ if __name__ == "__main__":
     
     # Get the environment from command-line argument (passed from job parameter)
     # Default to 'dev' if not provided
+    
     env_var = spark.conf.get("env", "dev")
     print(f"Running with environment: {env_var}")
 
