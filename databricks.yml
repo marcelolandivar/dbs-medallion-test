@@ -2,26 +2,45 @@
 bundle:
   name: "Project code"
 
+# Grant permissions to users/service principals who can deploy this bundle
+permissions:
+  - level: CAN_MANAGE
+    service_principal_name: "a76aaeca-00b8-4e18-aad3-e94b43d51bc8"
 include:
   - resources/*.yml
   - resources/*/*.yml
+
+  # Variable declarations. These variables are assigned in the dev/prod targets below.
+variables:
+  env:
+    description: The environment to use
+    default: dev
+  development:
+    description: Whether this is a development deployment
+    default: true
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
   dev:
     mode: development
     default: true
+    variables:
+      env: dev
+      development: true
     workspace:
-      host: https://dbc-6d9d2165-ee4b.cloud.databricks.com
-      root_path: /Users/${workspace.user}/.bundle/${bundle.name}/${bundle.target}
+      host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
 
   # The 'prod' target, used for production deployment.
   prod:
     mode: production
+    variables:
+      env: prod
+      development: false
     workspace:
-      host: https://dbc-6d9d2165-ee4b.cloud.databricks.com
+      host: https://dbc-f68e7a30-2eef.cloud.databricks.com/
       # We always use /Users/ferndaguzmanguzman@gmail.com for all resources to make sure we only have a single copy.
-      root_path: /Users/ferndaguzmanguzman@gmail.com/.bundle/${bundle.name}/${bundle.target}
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
     run_as:
       # This runs as ferndaguzmanguzman@gmail.com in production. We could also use a service principal here,
       # see https://docs.databricks.com/dev-tools/bundles/permissions.html.

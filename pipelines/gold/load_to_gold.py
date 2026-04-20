@@ -9,18 +9,18 @@ from common.transformations import create_LoadTime, create_VehicleIntensity
 def read_SilverTrafficTable(spk, cfg):
     print('Reading the Silver Traffic Table Data : ',end='')
     df_SilverTraffic = (spk.readStream
-                    .table(f"`{cfg.catalog}`.`{cfg.schema}`.`silver_traffic`")
+                    .table(f"`{cfg.catalog}`.`silver`.`silver_traffic`")
                     )
-    print(f'Reading {cfg.catalog}.{cfg.schema}.silver_traffic Success!')
+    print(f'Reading {cfg.catalog}.silver.silver_traffic Success!')
     print("**********************************")
-    return 
+    return df_SilverTraffic
 
 def read_SilverRoadsTable(spk, cfg):
     print('Reading the Silver Table Silver_roads Data : ',end='')
     df_SilverRoads = (spk.readStream
-                    .table(f"`{cfg.catalog}`.`{cfg.schema}`.`silver_roads`")
+                    .table(f"`{cfg.catalog}`.`silver`.`silver_roads`")
                     )
-    print(f'Reading {cfg.catalog}.{cfg.schema}.silver_roads Success!')
+    print(f'Reading {cfg.catalog}.silver.silver_roads Success!')
     print("**********************************")
     return df_SilverRoads
 
@@ -58,7 +58,7 @@ def run_gold(env: str):
 
     df_traffic = read_SilverTrafficTable(spark, cfg)
     df_roads = read_SilverRoadsTable(spark, cfg)
-
+    df_traffic.show()
     df_vehicle = create_VehicleIntensity(df_traffic)
     df_FinalTraffic = create_LoadTime(df_vehicle)
     df_FinalRoads = create_LoadTime(df_roads)

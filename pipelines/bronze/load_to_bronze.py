@@ -67,7 +67,6 @@ def read_Road_Data(spk, cfg):
         StructField('Total_Link_Length_Km',DoubleType()),
         StructField('Total_Link_Length_Miles',DoubleType()),
         StructField('All_Motor_Vehicles',DoubleType())
-        
         ])
 
     rawRoads_stream = (spk.readStream

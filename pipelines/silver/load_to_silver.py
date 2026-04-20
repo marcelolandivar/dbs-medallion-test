@@ -10,9 +10,9 @@ from common.validations import validate_not_null, drop_duplicates
 def read_BronzeTrafficTable(spk, cfg):
     print('Reading the Bronze Table Data : ',end='')
     df_bronzeTraffic = (spk.readStream
-                    .table(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_traffic`")
+                    .table(f"`{cfg.catalog}`.`bronze`.`raw_traffic`")
                     )
-    print(f'Reading {cfg.catalog}.{cfg.schema}.raw_traffic Success!')
+    print(f'Reading {cfg.catalog}.bronze.raw_traffic Success!')
     return df_bronzeTraffic
 
 def write_Traffic_to_Silver(StreamingDF,cfg):
@@ -32,9 +32,9 @@ def write_Traffic_to_Silver(StreamingDF,cfg):
 def read_BronzeRoadsTable(spk, cfg):
     print('Reading the Bronze Table raw_roads Data : ',end='')
     df_bronzeRoads = (spk.readStream
-                    .table(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_roads`")
+                    .table(f"`{cfg.catalog}`.`bronze`.`raw_roads`")
                     )
-    print(f'Reading {cfg.catalog}.{cfg.schema}.raw_roads Success!')
+    print(f'Reading {cfg.catalog}.bronze.raw_roads Success!')
     print("**********************************")
     return df_bronzeRoads
 

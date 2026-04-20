@@ -3,7 +3,7 @@ resources:
     medallion_pipeline:
       name: medallion-pipeline
       catalog: dev_catalog
-      target: ${bundle.target == 'dev'}
+      target: medallion_schema
       serverless: true
       development: true
       continuous: false
@@ -11,16 +11,3 @@ resources:
       libraries:
         - file:
             path: ../dlt_pipeline.py
-
-targets:
-  dev:
-    default: true
-    workspace:
-      root_path: /Users/${workspace.current_user}/dbs-medallion-test
-    variables:
-      catalog: "dev_catalog"
-  prod:
-    workspace:
-      root_path: /Users/${workspace.current_user}/dbs-medallion-test
-    variables:
-      catalog: "prod_catalog"

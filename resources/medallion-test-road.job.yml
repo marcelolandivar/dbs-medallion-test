@@ -4,13 +4,20 @@ resources:
       name: Job
       queue:
         enabled: true
+      run_as:
+        service_principal_name: "a76aaeca-00b8-4e18-aad3-e94b43d51bc8"
       tasks:
          - task_key: script_task
            spark_python_task:
              python_file: ../main.py
-           environment_key: dev
+             parameters: ["{{job.parameters.env}}"]
+             source: WORKSPACE
+           environment_key: Default
+      parameters:
+        - name: env
+          default: "dev"
       environments:
-        - environment_key: dev
+        - environment_key: Default
           spec:
             environment_version: '2'
       email_notifications:
@@ -21,3 +28,4 @@ resources:
          periodic:
            interval: 1
            unit: DAYS
+      performance_target: PERFORMANCE_OPTIMIZED
