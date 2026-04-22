@@ -40,7 +40,7 @@ jobs:
         uses: databricks/setup-cli@main
 
       - name: Validate Bundle
-        run: databricks bundle validate --target prod --var="emv=prod,development=false"
+        run: databricks bundle validate --target prod --var="env=prod,development=false"
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
