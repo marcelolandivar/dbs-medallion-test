@@ -5,6 +5,8 @@ from pyspark.sql import SparkSession
 from config.config import get_config
 from common.transformations import Motor_Count, create_TransformedTime, ev_Count, handle_NULLs, remove_Dups, road_Category, road_Type
 from common.validations import validate_not_null, drop_duplicates
+from pyspark.sql.functions import current_timestamp
+import os
 
 
 def read_BronzeTrafficTable(spk, cfg):
@@ -17,8 +19,8 @@ def read_BronzeTrafficTable(spk, cfg):
 
 def write_Traffic_to_Silver(StreamingDF,cfg):
     print('Writing the silver_traffic Data : ',end='') 
-
-    write_StreamSilver = (StreamingDF.writeStream
+    write_streaming_ts = StreamingDF.withColumn("ingested_at", current_timestamp())
+    write_StreamSilver = (write_streaming_ts.writeStream
                 .format('delta')
                 .option('checkpointLocation',cfg.checkpoint+ "/SilverTrafficLoad/Checkpt/")
                 .outputMode('append')
@@ -40,8 +42,8 @@ def read_BronzeRoadsTable(spk, cfg):
 
 def write_Roads_to_Silver(StreamingDF,cfg):
     print('Writing the silver_roads Data : ',end='') 
-
-    write_StreamSilver_R = (StreamingDF.writeStream
+    write_streaming_ts = StreamingDF.withColumn("ingested_at", current_timestamp())
+    write_StreamSilver_R = (write_streaming_ts.writeStream
                 .format('delta')
                 .option('checkpointLocation',cfg.checkpoint+ "/SilverRoadsLoad/Checkpt/")
                 .outputMode('append')
@@ -79,3 +81,5 @@ def run_silver(env: str):
     df_roads_data = road_Type(df_roads_data)
 
     write_Roads_to_Silver(df_roads_data, cfg)
+    run_id = os.getenv("DATABRICKS_JOB_RUN_ID", "local")
+    print(f"Ingestion complete. run_id={run_id}")

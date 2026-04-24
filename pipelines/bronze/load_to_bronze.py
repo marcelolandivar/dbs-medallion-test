@@ -7,6 +7,7 @@ from pyspark.sql import SparkSession
 from config.config import get_config
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
 from pyspark.sql.functions import current_timestamp
+import os
 
 
 def read_Traffic_Data(spk, cfg):
@@ -76,6 +77,7 @@ def read_Road_Data(spk, cfg):
         .option('header','true')
         .schema(schema)
         .load(cfg.landing+'/raw_roads/')
+        .withColumn("Extract_Time", current_timestamp())
         )
     
     print('Reading Succcess !!')
@@ -121,6 +123,7 @@ def run_bronze(env: str):
 
     write_Traffic_Data(rawTraffic_stream, cfg)
     write_Road_Data(rawRoads_stream, cfg)
-
+    run_id = os.getenv("DATABRICKS_JOB_RUN_ID", "local")
+    print(f"Ingestion complete. run_id={run_id}")
 
 
