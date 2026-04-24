@@ -4,6 +4,7 @@
 from pyspark.sql import SparkSession
 from config.config import get_config
 from common.transformations import create_LoadTime, create_VehicleIntensity
+import os
 
 
 def read_SilverTrafficTable(spk, cfg):
@@ -65,3 +66,6 @@ def run_gold(env: str):
 
     write_Traffic_to_Gold(df_FinalTraffic, cfg)
     write_Roads_to_Gold(df_FinalRoads, cfg)
+
+    run_id = os.getenv("DATABRICKS_JOB_RUN_ID", "local")
+    print(f"Ingestion complete. run_id={run_id}")

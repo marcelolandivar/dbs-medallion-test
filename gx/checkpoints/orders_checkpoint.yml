@@ -1,0 +1,17 @@
+name: orders_checkpoint
+config_version: 1.0
+class_name: SimpleCheckpoint
+run_name_template: "%Y%m%d-%H%M%S-orders"
+validations:
+  - batch_request:
+      datasource_name: spark_datasource
+      data_connector_name: runtime_connector
+      data_asset_name: orders
+    expectation_suite_name: orders_suite
+action_list:
+  - name: store_validation_result
+    action:
+      class_name: StoreValidationResultAction
+  - name: update_data_docs
+    action:
+      class_name: UpdateDataDocsAction
