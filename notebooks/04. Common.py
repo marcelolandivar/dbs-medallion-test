@@ -24,11 +24,6 @@
 location_name = "aws-external-location"
 url = spark.sql(f"DESCRIBE EXTERNAL LOCATION `{location_name}`").select("url").collect()[0][0]
 
-%md
-
-## Defining common functions
-
-
 # COMMAND ----------
 
 location_name = "aws-external-location"

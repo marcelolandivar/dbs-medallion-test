@@ -2,10 +2,10 @@ resources:
   pipelines:
     medallion_pipeline:
       name: medallion-pipeline
-      catalog: dev_catalog
+      catalog: ${var.env}_catalog
       target: medallion_schema
       serverless: true
-      development: true
+      development: ${var.development}
       continuous: false
       channel: CURRENT
       libraries:

@@ -25,7 +25,7 @@ def get_config(env: str, layer: str) -> Config:
         )
     elif env == "prod":
         return Config(
-            catalog="prod",
+            catalog="prod_catalog",
             schema=layer,
             raw_path=f"s3://amazn-s3-db-bckt/{env}/medallion/{layer}/{layer}",
             checkpoint = f"{url}/{env}/checkpoints",
