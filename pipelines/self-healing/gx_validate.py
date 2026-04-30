@@ -1,56 +1,78 @@
-# notebooks/04_ai_agent.py
+dbutils.widgets.text("table_name", f"`{cfg.catalog}`.`{cfg.schema}`.`silver_roads`")
+dbutils.widgets.text("suite_name", "orders_suite")
+
+table_name = dbutils.widgets.get("table_name")
+suite_name  = dbutils.widgets.get("suite_name")
+
+# COMMAND ----------
+import great_expectations as gx
 import json
-from openai import AzureOpenAI
+from datetime import datetime
 
-run_id = dbutils.jobs.taskValues.get(taskKey="gx_validate", key="run_id")
+context = gx.get_context(context_root_dir="s3://amazn-s3-db-bckt/gx_expectations/")
 
-result_row = spark.sql(f"""
-    SELECT result_json FROM catalog.monitoring.dq_results
-    WHERE run_id = '{run_id}'
-    ORDER BY ts DESC LIMIT 1
-""").collect()[0]
+# Build or reuse the expectation suite
+try:
+    suite = context.get_expectation_suite(suite_name)
+    print(f"Loaded existing suite: {suite_name}")
+except Exception:
+    print(f"Creating new suite: {suite_name}")
+    suite = context.add_expectation_suite(suite_name)
+    suite.add_expectation(
+        gx.expectations.ExpectColumnValuesToNotBeNull(column="order_id"))
+    suite.add_expectation(
+        gx.expectations.ExpectColumnValuesToNotBeNull(column="amount"))
+    suite.add_expectation(
+        gx.expectations.ExpectColumnValuesToBeBetween(
+            column="amount", min_value=0, max_value=100_000))
+    suite.add_expectation(
+        gx.expectations.ExpectTableRowCountToBeBetween(
+            min_value=1_000, max_value=10_000_000))
+    suite.add_expectation(
+        gx.expectations.ExpectColumnValuesToBeOfType(
+            column="created_at", type_="TimestampType"))
+    context.save_expectation_suite(suite)
 
-result_json = json.loads(result_row["result_json"])
-failed_expectations = [r for r in result_json["results"] if not r["success"]]
+# COMMAND ----------
+# Run the checkpoint
+df = spark.read.table(table_name)
+batch_request = (context
+    .get_datasource("spark_datasource")
+    .get_asset("orders")
+    .build_batch_request(dataframe=df))
 
-if not failed_expectations:
-    dbutils.jobs.taskValues.set(key="severity", value="passed")
-    dbutils.notebook.exit("passed")
-
-client = AzureOpenAI(
-    azure_endpoint=dbutils.secrets.get("kv-scope", "azure-openai-endpoint"),
-    api_key=dbutils.secrets.get("kv-scope", "azure-openai-key"),
-    api_version="2024-02-01"
+result = context.run_checkpoint(
+    checkpoint_name="orders_checkpoint",
+    validations=[{
+        "batch_request": batch_request,
+        "expectation_suite_name": suite_name
+    }]
 )
 
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": f"""
-        Analyse these Great Expectations failures and return JSON with:
-        - severity: "critical" | "warning"
-        - root_cause: one of [schema_change, source_outage, upstream_bug, data_drift, volume_anomaly]
-        - summary: one sentence for a Slack alert
-        - remediation: concrete next step for the data engineer
-        - affected_downstream: list of table or dashboard names at risk
+success     = result.success
+result_json = result.to_json_dict()
+run_id      = dbutils.notebook.entry_point.getDbutils().notebook().getContext().currentRunId().get()
 
-        Failures:
-        {json.dumps(failed_expectations, indent=2)}
-    """}],
-    response_format={"type": "json_object"}
-)
-
-analysis = json.loads(response.choices[0].message.content)
-
-# Write analysis to monitoring table
+# COMMAND ----------
+# Persist result to monitoring table
 spark.createDataFrame([{
-    "run_id":    run_id,
-    "severity":  analysis["severity"],
-    "root_cause": analysis["root_cause"],
-    "summary":   analysis["summary"],
-    "remediation": analysis["remediation"],
-    "affected_downstream": json.dumps(analysis.get("affected_downstream", []))
-}]).write.format("delta").mode("append").saveAsTable("catalog.monitoring.dq_analysis")
+    "run_id":       run_id,
+    "table_name":   table_name,
+    "suite_name":   suite_name,
+    "success":      success,
+    "result_json":  json.dumps(result_json),
+    "validated_at": datetime.utcnow().isoformat()
+}]).write.format("delta").mode("append") \
+  .saveAsTable("main.monitoring.dq_results")
 
-# Signal to branch tasks
-dbutils.jobs.taskValues.set(key="severity",   value=analysis["severity"])
-dbutils.jobs.taskValues.set(key="root_cause", value=analysis["root_cause"])
+# Rebuild Data Docs
+context.build_data_docs()
+
+# Signal downstream tasks via task values
+dbutils.jobs.taskValues.set(key="run_id",     value=run_id)
+dbutils.jobs.taskValues.set(key="dq_success", value=str(success))
+dbutils.jobs.taskValues.set(key="dq_table",   value=table_name)
+
+print(f"Validation complete. Success={success}")
+if not success:
+    raise Exception("GX validation failed — ai_agent_analyse will handle via run_if=ALL_DONE")
