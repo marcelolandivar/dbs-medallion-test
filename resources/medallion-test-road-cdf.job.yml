@@ -9,7 +9,7 @@ resources:
       tasks:
          - task_key: script_task
            spark_python_task:
-             python_file: ../main.py
+             python_file: ../main_cdf.py
              parameters: ["{{job.parameters.env}}"]
              source: WORKSPACE
            environment_key: Default
