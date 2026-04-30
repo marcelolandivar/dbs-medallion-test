@@ -1,0 +1,90 @@
+resources:
+  jobs:
+    orders_pipeline:
+      name: "[${var.env}] pipeline_with_dq"
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "UTC"
+        pause_status: UNPAUSED
+      queue:
+        enabled: true
+      run_as:
+        service_principal_name: "a76aaeca-00b8-4e18-aad3-e94b43d51bc8"
+
+      tasks:
+        - task_key: ingestion
+          spark_python_task:
+            python_file: ../pipelines/bronze/load_to_bronze.py
+            parameters: ["{{job.parameters.env}}"]
+            source: WORKSPACE
+          environment_key: Default
+ 
+        - task_key: transform_silver
+          depends_on:
+            - task_key: ingest_raw
+          job_cluster_key: shared_cluster
+          notebook_task:
+            notebook_path: ./notebooks/02_transform_silver
+            base_parameters:
+              catalog: "${var.catalog}"
+ 
+        - task_key: gx_validate
+          depends_on:
+            - task_key: transform_silver
+          job_cluster_key: shared_cluster
+          notebook_task:
+            notebook_path: ./notebooks/03_gx_validate
+            base_parameters:
+              table_name: "${var.catalog}.silver.orders"
+              suite_name: "orders_suite"
+ 
+        - task_key: ai_agent_analyse
+          depends_on:
+            - task_key: gx_validate
+          run_if: ALL_DONE
+          job_cluster_key: shared_cluster
+          spark_python_task:
+            notebook_path: ./pipelines/self-healing/ai_agent_analyse.py
+            base_parameters:
+              catalog: "${var.catalog}"
+      
+      parameters:
+        - name: env
+          default: "dev"
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: '2'
+      email_notifications:
+         on_failure:
+           - ferndaguzmanguzman@gmail.com
+ 
+#        - task_key: critical_action
+#          depends_on:
+#            - task_key: ai_agent_analyse
+#          run_if: ALL_DONE
+#          job_cluster_key: shared_cluster
+#          notebook_task:
+#            notebook_path: ./notebooks/05a_critical_action
+#            base_parameters:
+#              catalog: "${var.catalog}"
+# 
+#        - task_key: warning_log
+#          depends_on:
+#            - task_key: ai_agent_analyse
+#          run_if: ALL_DONE
+#          job_cluster_key: shared_cluster
+#          notebook_task:
+#            notebook_path: ./notebooks/05b_warning_log
+#            base_parameters:
+#              catalog: "${var.catalog}"
+# 
+#        - task_key: promote_gold
+#          depends_on:
+#            - task_key: ai_agent_analyse
+#          run_if: ALL_DONE
+#          job_cluster_key: shared_cluster
+#          notebook_task:
+#            notebook_path: ./notebooks/05c_promote_gold
+#            base_parameters:
+#              catalog: "${var.catalog}"
