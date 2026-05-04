@@ -1,3 +1,4 @@
+
 # =========================
 # SPARK DECLARATIVE PIPELINES (Modern Version)
 # =========================
@@ -121,3 +122,4 @@ def gold_traffic():
     df_traffic = create_VehicleIntensity(df)
     df_clean = create_LoadTime(df_traffic)
     return df_clean
+

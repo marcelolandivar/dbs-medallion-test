@@ -3,47 +3,27 @@
 
 # COMMAND ----------
 
+
 dbutils.widgets.text(name="env",defaultValue="",label=" Enter the environment in lower case")
 env = dbutils.widgets.get("env")
 
+
+
 # COMMAND ----------
 
-def create_Bronze_Schema(environment,path):
+def create_Schema(environment, url, layer):
+    
     print(f'Using {environment}_Catalog ')
     spark.sql(f""" USE CATALOG '{environment}_catalog'""")
     print(f'Creating Bronze Schema in {environment}_Catalog')
-    spark.sql(f"""CREATE SCHEMA IF NOT EXISTS `bronze` MANAGED LOCATION '{path}/bronze'""")
+    spark.sql(f"""CREATE SCHEMA IF NOT EXISTS `{layer}` MANAGED LOCATION '{url}/{environment}/medallion/{layer}/{layer}'""")
     print("************************************")
 
 # COMMAND ----------
 
-def create_Silver_Schema(environment,path):
-    print(f'Using {environment}_Catalog ')
-    spark.sql(f""" USE CATALOG '{environment}_catalog'""")
-    print(f'Creating Silver Schema in {environment}_Catalog')
-    spark.sql(f"""CREATE SCHEMA IF NOT EXISTS `silver` MANAGED LOCATION '{path}/silver'""")
-    print("************************************")
-
-# COMMAND ----------
-
-def create_Gold_Schema(environment,path):
-    print(f'Using {environment}_Catalog ')
-    spark.sql(f""" USE CATALOG '{environment}_catalog'""")
-    print(f'Creating Gold Schema in {environment}_Catalog')
-    spark.sql(f"""CREATE SCHEMA IF NOT EXISTS `gold` MANAGED LOCATION '{path}/gold'""")
-    print("************************************")
-
-# COMMAND ----------
-
-create_Bronze_Schema(env,bronze_path)
-
-# COMMAND ----------
-
-create_Silver_Schema(env,silver_path)
-
-# COMMAND ----------
-
-create_Gold_Schema(env,gold_path)
+create_Schema(env,url, 'bronze')
+create_Schema(env,url, 'silver')
+create_Schema(env,url, 'gold')
 
 # COMMAND ----------
 
@@ -61,7 +41,7 @@ create_Gold_Schema(env,gold_path)
 
 def createTable_rawTraffic(environment):
     print(f'Creating raw_Traffic table in {environment}_catalog')
-    spark.sql(f"""CREATE TABLE IF NOT EXISTS `{environment}_catalog`.`bronze`.`raw_traffic`
+    spark.sql(f"""CREATE TABLE IF NOT EXISTS `{environment}_catalog`.`bronze`.`raw_traffic_dlt`
                         (
                             Record_ID INT,
                             Count_point_id INT,
@@ -102,7 +82,7 @@ def createTable_rawTraffic(environment):
 
 def createTable_rawRoad(environment):
     print(f'Creating raw_roads table in {environment}_catalog')
-    spark.sql(f"""CREATE TABLE IF NOT EXISTS `{environment}_catalog`.`bronze`.`raw_roads`
+    spark.sql(f"""CREATE TABLE IF NOT EXISTS `{environment}_catalog`.`bronze`.`raw_roads_dlt`
                         (
                             Road_ID INT,
                             Road_Category_Id INT,
@@ -124,10 +104,10 @@ def createTable_rawRoad(environment):
 
 # COMMAND ----------
 
-create_Bronze_Schema(env,bronze_path)
+#create_Bronze_Schema(env,bronze_path)
 createTable_rawTraffic(env)
 createTable_rawRoad(env)
 
 
-create_Silver_Schema(env,silver_path)
-create_Gold_Schema(env,gold_path)
+#create_Silver_Schema(env,silver_path)
+#create_Gold_Schema(env,gold_path)

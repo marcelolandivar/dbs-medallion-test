@@ -20,6 +20,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     env_var = args.env
+
     print(f"Running with environment: {env_var}")
 
     # Execute layers sequentially
