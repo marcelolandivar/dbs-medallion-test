@@ -5,7 +5,7 @@
 # =========================
 from pyspark.sql import SparkSession
 from config.config import get_config
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, TimestampType
 from pyspark.sql.functions import current_timestamp
 import os
 
@@ -38,7 +38,8 @@ def read_Traffic_Data(spk, cfg):
         StructField("LGV_Type",IntegerType()),
         StructField("HGV_Type",IntegerType()),
         StructField("EV_Car",IntegerType()),
-        StructField("EV_Bike",IntegerType())
+        StructField("EV_Bike",IntegerType()),
+        StructField('Extract_Time',TimestampType())
     ])
 
     rawTraffic_stream = (spk.readStream
@@ -67,7 +68,8 @@ def read_Road_Data(spk, cfg):
         StructField('Region_Name',StringType()),
         StructField('Total_Link_Length_Km',DoubleType()),
         StructField('Total_Link_Length_Miles',DoubleType()),
-        StructField('All_Motor_Vehicles',DoubleType())
+        StructField('All_Motor_Vehicles',DoubleType()),
+        StructField('Extract_Time',TimestampType())
         ])
 
     rawRoads_stream = (spk.readStream
