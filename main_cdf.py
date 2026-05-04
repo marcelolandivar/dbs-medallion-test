@@ -1,7 +1,7 @@
 # =========================
 # main.py
 # =========================
-import sys
+import argparse
 from pyspark.sql import SparkSession
 from pipelines.bronze.load_to_bronze_cdf import run_bronze
 from pipelines.silver.load_to_silver_cdf import run_silver
@@ -14,7 +14,11 @@ if __name__ == "__main__":
 
     # Get the environment from command-line argument (passed from job parameter)
     # Default to 'dev' if not provided
-    env_var = spark.conf.get("env", "dev")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--env", default="dev")
+
+    args = parser.parse_args()
+    env_var = args.env
     print(f"Running with environment: {env_var}")
 
 
