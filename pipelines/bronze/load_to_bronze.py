@@ -47,6 +47,7 @@ def read_Traffic_Data(spk, cfg):
         .option("cloudFiles.format","csv")
         .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawTrafficLoad/schemaInfer')
         .option('header','true')
+        .option("ignoreDeletes", "true")  
         .schema(schema)
         .load(cfg.landing+'/raw_traffic/')
         .withColumn("Extract_Time", current_timestamp()))
@@ -77,6 +78,7 @@ def read_Road_Data(spk, cfg):
         .option("cloudFiles.format","csv")
         .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawRoadsLoad/schemaInfer')
         .option('header','true')
+        .option("ignoreDeletes", "true")  
         .schema(schema)
         .load(cfg.landing+'/raw_roads/')
         .withColumn("Extract_Time", current_timestamp())
@@ -91,7 +93,6 @@ def write_Traffic_Data(StreamingDF, cfg):
     print(f'Writing data to {cfg.catalog} raw_traffic table', end='' )
     write_Stream = (StreamingDF.writeStream
                     .format('delta')
-                    .option("mergeSchema", "true")
                     .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoad/Checkpt')
                     .outputMode('append')
                     .queryName('rawTrafficWriteStream')
@@ -106,7 +107,6 @@ def write_Road_Data(StreamingDF, cfg):
     print(f'Writing data to {cfg.catalog} raw_roads table', end='' )
     write_Data = (StreamingDF.writeStream
                     .format('delta')
-                    .option("mergeSchema", "true")
                     .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoad/Checkpt')
                     .outputMode('append')
                     .queryName('rawRoadsWriteStream')
