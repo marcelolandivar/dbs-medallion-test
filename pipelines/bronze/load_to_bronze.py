@@ -93,6 +93,7 @@ def write_Traffic_Data(StreamingDF, cfg):
     print(f'Writing data to {cfg.catalog} raw_traffic table', end='' )
     write_Stream = (StreamingDF.writeStream
                     .format('delta')
+                    .option("mergeSchema", "true")
                     .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoad/Checkpt')
                     .outputMode('append')
                     .queryName('rawTrafficWriteStream')
@@ -107,6 +108,7 @@ def write_Road_Data(StreamingDF, cfg):
     print(f'Writing data to {cfg.catalog} raw_roads table', end='' )
     write_Data = (StreamingDF.writeStream
                     .format('delta')
+                    .option("mergeSchema", "true")
                     .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoad/Checkpt')
                     .outputMode('append')
                     .queryName('rawRoadsWriteStream')
