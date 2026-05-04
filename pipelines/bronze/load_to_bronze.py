@@ -44,6 +44,7 @@ def read_Traffic_Data(spk, cfg):
     rawTraffic_stream = (spk.readStream
         .format("cloudFiles")
         .option("cloudFiles.format","csv")
+        .option("mergeSchema", "true")
         .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawTrafficLoad/schemaInfer')
         .option('header','true')
         .schema(schema)
@@ -73,6 +74,7 @@ def read_Road_Data(spk, cfg):
     rawRoads_stream = (spk.readStream
         .format("cloudFiles")
         .option("cloudFiles.format","csv")
+        .option("mergeSchema", "true")
         .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawRoadsLoad/schemaInfer')
         .option('header','true')
         .schema(schema)
