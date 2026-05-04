@@ -30,6 +30,7 @@ def write_Traffic_to_Gold(StreamingDF,cfg):
 
     write_gold_traffic = (StreamingDF.writeStream
                 .format('delta')
+                .option("mergeSchema", "true")
                 .option('checkpointLocation',cfg.checkpoint+ "GoldTrafficLoad/Checkpt/")
                 .outputMode('append')
                 .queryName("GoldTrafficWriteStream")
@@ -44,6 +45,7 @@ def write_Roads_to_Gold(StreamingDF,cfg):
 
     write_gold_roads = (StreamingDF.writeStream
                 .format('delta')
+                .option("mergeSchema", "true")
                 .option('checkpointLocation',cfg.checkpoint+ "GoldRoadsLoad/Checkpt/")
                 .outputMode('append')
                 .queryName("GoldRoadsWriteStream")
