@@ -97,13 +97,13 @@ def write_Traffic_Data(StreamingDF, cfg, tracker):
                     source_layer='raw',
                     source_table='csv_traffic',
                     target_layer='bronze',
-                    target_table='raw_traffic'
+                    target_table='raw_traffic_cdf'
                 )
             )
             .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoad/Checkpt')
             .queryName('rawTrafficWriteStream')
             .trigger(availableNow=True)
-            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_traffic`"))
+            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_traffic_cdf`"))
     
     write_Stream.awaitTermination()
     print('Write Success')
@@ -119,13 +119,13 @@ def write_Road_Data(StreamingDF, cfg, tracker):
                     source_layer='raw',
                     source_table='csv_roads',
                     target_layer='bronze',
-                    target_table='raw_roads'
+                    target_table='raw_roads_cdf'
                 )
             )
             .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoad/Checkpt')
             .queryName('rawRoadsWriteStream')
             .trigger(availableNow=True)
-            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_roads`"))
+            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_roads_cdf`"))
     
     write_Data.awaitTermination()
     print('Write Success')

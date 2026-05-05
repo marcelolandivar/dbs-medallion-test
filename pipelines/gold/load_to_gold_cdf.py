@@ -11,13 +11,13 @@ from common.transformations import create_LoadTime, create_VehicleIntensity
 
 def read_SilverTraffic_CDF(spk, cfg, start_version=0):
     """Read CDF from silver traffic table"""
-    print(f'Reading CDF from silver.silver_traffic (starting version: {start_version})')
+    print(f'Reading CDF from silver.silver_traffic_cdf (starting version: {start_version})')
     
     df_silverTraffic = (spk.readStream
                         .format("delta")
                         .option("readChangeFeed", "true")
                         .option("startingVersion", start_version)
-                        .table(f"`{cfg.catalog}`.`silver`.`silver_traffic`"))
+                        .table(f"`{cfg.catalog}`.`silver`.`silver_traffic_cdf`"))
     
     # Filter for inserts and updates
     df_silverTraffic = (df_silverTraffic
@@ -30,13 +30,13 @@ def read_SilverTraffic_CDF(spk, cfg, start_version=0):
 
 def read_SilverRoads_CDF(spk, cfg, start_version=0):
     """Read CDF from silver roads table"""
-    print(f'Reading CDF from silver.silver_roads (starting version: {start_version})')
+    print(f'Reading CDF from silver.silver_roads_cdf (starting version: {start_version})')
     
     df_silverRoads = (spk.readStream
                       .format("delta")
                       .option("readChangeFeed", "true")
                       .option("startingVersion", start_version)
-                      .table(f"`{cfg.catalog}`.`silver`.`silver_roads`"))
+                      .table(f"`{cfg.catalog}`.`silver`.`silver_roads_cdf`"))
     
     # Filter for inserts and updates
     df_silverRoads = (df_silverRoads
@@ -57,9 +57,9 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
                     df,
                     batch_id,
                     source_layer="silver",
-                    source_table="silver_traffic",
+                    source_table="silver_traffic_cdf",
                     target_layer="gold",
-                    target_table="gold_traffic"
+                    target_table="gold_traffic_cdf"
                 )
             )
             .option('checkpointLocation',cfg.checkpoint+ "GoldTrafficLoad/Checkpt/")
@@ -79,9 +79,9 @@ def write_Roads_to_Gold(StreamingDF,cfg, tracker):
                     df,
                     batch_id,
                     source_layer="silver",
-                    source_table="silver_roads",
+                    source_table="silver_roads_cdf",
                     target_layer="gold",
-                    target_table="gold_roads"
+                    target_table="gold_roads_cdf"
                 )
             )
                 .option('checkpointLocation',cfg.checkpoint+ "GoldRoadsLoad/Checkpt/")
@@ -132,7 +132,7 @@ def write_Gold_RoadAnalytics(StreamingDF, cfg, tracker):
                     df,
                     batch_id,
                     source_layer="silver",
-                    source_table="silver_roads",
+                    source_table="silver_roads_cdf",
                     target_layer="gold",
                     target_table="road_analytics"
                 )
@@ -154,21 +154,21 @@ def run_gold(env: str, tracker):
     # Get last processed versions
     last_traffic_version = tracker.get_last_version(
         source_layer='silver',
-        source_table='silver_traffic',
+        source_table='silver_traffic_cdf',
         target_layer='gold',
-        target_table='gold_traffic'
+        target_table='gold_traffic_cdf'
     )
     
     last_roads_version = tracker.get_last_version(
         source_layer='silver',
-        source_table='silver_roads',
+        source_table='silver_roads_cdf',
         target_layer='gold',
-        target_table='gold_roads'
+        target_table='gold_roads_cdf'
     )
     
     last_roads_analytics_version = tracker.get_last_version(
         source_layer='silver',
-        source_table='silver_roads',
+        source_table='silver_roads_cdf',
         target_layer='gold',
         target_table='road_analytics'
     )

@@ -10,20 +10,20 @@ from common.validations import validate_not_null, drop_duplicates
 
 def read_BronzeTrafficTable_CDF(spk, cfg, start_version=0):
     """Read Change Data Feed from bronze traffic table"""
-    print(f'Reading CDF from {cfg.catalog}.bronze.raw_traffic (starting version: {start_version})')
+    print(f'Reading CDF from {cfg.catalog}.bronze.raw_traffic_cdf (starting version: {start_version})')
     
     df_bronzeTraffic = (spk.readStream
                         .format("delta")
                         .option("readChangeFeed", "true")
                         .option("startingVersion", start_version)
-                        .table(f"`{cfg.catalog}`.`bronze`.`raw_traffic`"))
+                        .table(f"`{cfg.catalog}`.`bronze`.`raw_traffic_cdf`"))
     
     # Filter for inserts and updates only (exclude deletes)
     df_bronzeTraffic = (df_bronzeTraffic
                         .filter(col("_change_type").isin(['insert', 'update_postimage']))
                         .drop('_change_type', '_commit_version', '_commit_timestamp'))
     
-    print(f'✓ Reading {cfg.catalog}.bronze.raw_traffic Success!')
+    print(f'✓ Reading {cfg.catalog}.bronze.raw_traffic_cdf Success!')
     return df_bronzeTraffic
 
 
@@ -48,25 +48,25 @@ def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
             .start())
     
     write_StreamSilver.awaitTermination()
-    print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_traffic` Success!')
+    print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_traffic_cdf` Success!')
 
 
 def read_BronzeRoadsTable_CDF(spk, cfg, start_version=0):
     """Read Change Data Feed from bronze roads table"""
-    print(f'Reading CDF from {cfg.catalog}.bronze.raw_roads (starting version: {start_version})')
+    print(f'Reading CDF from {cfg.catalog}.bronze.raw_roads_cdf (starting version: {start_version})')
     
     df_bronzeRoads = (spk.readStream
                       .format("delta")
                       .option("readChangeFeed", "true")
                       .option("startingVersion", start_version)
-                      .table(f"`{cfg.catalog}`.`bronze`.`raw_roads`"))
+                      .table(f"`{cfg.catalog}`.`bronze`.`raw_roads_cdf`"))
     
     # Filter for inserts and updates only
     df_bronzeRoads = (df_bronzeRoads
                       .filter(col("_change_type").isin(['insert', 'update_postimage']))
                       .drop('_change_type', '_commit_version', '_commit_timestamp'))
     
-    print(f'✓ Reading {cfg.catalog}.bronze.raw_roads Success!')
+    print(f'✓ Reading {cfg.catalog}.bronze.raw_roads_cdf Success!')
     return df_bronzeRoads
 
 
@@ -81,9 +81,9 @@ def write_Roads_to_Silver(StreamingDF, cfg, tracker):
                     df,
                     batch_id,
                     source_layer="bronze",
-                    source_table="roads",
+                    source_table="raw_roads_cdf",
                     target_layer="silver",
-                    target_table="silver_roads"
+                    target_table="silver_roads_cdf"
                 )
             )
             .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoad/Checkpt/")
@@ -105,9 +105,9 @@ def run_silver(env: str, tracker):
     # Get last processed version
     last_traffic_version = tracker.get_last_version(
         source_layer='bronze',
-        source_table='raw_traffic',
+        source_table='raw_traffic_cdf',
         target_layer='silver',
-        target_table='silver_traffic'
+        target_table='silver_traffic_cdf'
     )
     
     # Read CDF from last processed version
@@ -128,9 +128,9 @@ def run_silver(env: str, tracker):
     # Get last processed version
     last_roads_version = tracker.get_last_version(
         source_layer='bronze',
-        source_table='raw_roads',
+        source_table='raw_roads_cdf',
         target_layer='silver',
-        target_table='silver_roads'
+        target_table='silver_roads_cdf'
     )
     
     # Read CDF from last processed version
