@@ -62,7 +62,7 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
                     target_table="gold_traffic_cdf"
                 )
             )
-            .option('checkpointLocation',cfg.checkpoint+ "GoldTrafficLoad/Checkpt/")
+            .option('checkpointLocation',cfg.checkpoint+ "GoldTrafficLoadCDF/Checkpt/")
             .queryName("GoldTrafficWriteStream")
             .trigger(availableNow=True)
             .start())
@@ -84,7 +84,7 @@ def write_Roads_to_Gold(StreamingDF,cfg, tracker):
                     target_table="gold_roads_cdf"
                 )
             )
-                .option('checkpointLocation',cfg.checkpoint+ "GoldRoadsLoad/Checkpt/")
+                .option('checkpointLocation',cfg.checkpoint+ "GoldRoadsLoadCDF/Checkpt/")
                 .queryName("GoldRoadsWriteStream")
                 .trigger(availableNow=True)
                 .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`gold_roads`"))
@@ -137,7 +137,7 @@ def write_Gold_RoadAnalytics(StreamingDF, cfg, tracker):
                     target_table="road_analytics"
                 )
             )
-            .option('checkpointLocation', cfg.checkpoint + "/GoldRoadAnalytics/Checkpt/")
+            .option('checkpointLocation', cfg.checkpoint + "/GoldRoadAnalyticsCDF/Checkpt/")
             .queryName("GoldRoadAnalyticsWriteStream")
             .trigger(availableNow=True)
             .start())
