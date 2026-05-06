@@ -3,6 +3,31 @@
 
 # COMMAND ----------
 
+api_key = dbutils.secrets.get(
+    scope="kv-scope",
+    key="openai-api-key"
+)
+api_key
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC DROP TABLE `dev_catalog`.gold.gold_roads 
+
+# COMMAND ----------
+
+api_key = dbutils.secrets.get(
+    scope="kv-scope",
+    key="azure-openai-key"
+)
+
+
+# COMMAND ----------
+
+print(api_key[:5])
+
+# COMMAND ----------
+
 
 dbutils.widgets.text(name="env",defaultValue="",label=" Enter the environment in lower case")
 env = dbutils.widgets.get("env")
@@ -41,7 +66,7 @@ create_Schema(env,url, 'gold')
 
 def createTable_rawTraffic(environment):
     print(f'Creating raw_Traffic table in {environment}_catalog')
-    spark.sql(f"""CREATE TABLE IF NOT EXISTS `{environment}_catalog`.`bronze`.`raw_traffic_dlt`
+    spark.sql(f"""CREATE TABLE IF NOT EXISTS `{environment}_catalog`.`bronze`.`raw_traffic_cdf`
                         (
                             Record_ID INT,
                             Count_point_id INT,
@@ -68,7 +93,9 @@ def createTable_rawTraffic(environment):
                             EV_Car INT,
                             EV_Bike INT,
                             Extract_Time TIMESTAMP
-                    );""")
+                    )
+                    USING DELTA
+                    TBLPROPERTIES (delta.enableChangeDataFeed = true);;""")
     
     print("************************************")
 
@@ -82,7 +109,7 @@ def createTable_rawTraffic(environment):
 
 def createTable_rawRoad(environment):
     print(f'Creating raw_roads table in {environment}_catalog')
-    spark.sql(f"""CREATE TABLE IF NOT EXISTS `{environment}_catalog`.`bronze`.`raw_roads_dlt`
+    spark.sql(f"""CREATE TABLE IF NOT EXISTS `{environment}_catalog`.`bronze`.`raw_roads_cdf`
                         (
                             Road_ID INT,
                             Road_Category_Id INT,
@@ -91,8 +118,11 @@ def createTable_rawRoad(environment):
                             Region_Name VARCHAR(255),
                             Total_Link_Length_Km DOUBLE,
                             Total_Link_Length_Miles DOUBLE,
-                            All_Motor_Vehicles DOUBLE
-                    );""")
+                            All_Motor_Vehicles DOUBLE,
+                            Extract_Time TIMESTAMP
+                    )
+                USING DELTA
+                TBLPROPERTIES (delta.enableChangeDataFeed = true);;""")
     
     print("************************************")
 
@@ -111,3 +141,8 @@ createTable_rawRoad(env)
 
 #create_Silver_Schema(env,silver_path)
 #create_Gold_Schema(env,gold_path)
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC TRUNCATE TABLE `dev_catalog`.`silver`.`silver_roads`
