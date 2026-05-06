@@ -42,7 +42,7 @@ def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
                     target_table="silver_roads"
                 )
             )
-            .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoad/Checkpt/")
+            .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoadCDF/Checkpt/")
             .queryName("SilverRoadsWriteStream")
             .trigger(availableNow=True)
             .start())
@@ -86,7 +86,7 @@ def write_Roads_to_Silver(StreamingDF, cfg, tracker):
                     target_table="silver_roads_cdf"
                 )
             )
-            .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoad/Checkpt/")
+            .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoadCDF/Checkpt/")
             .queryName("SilverRoadsWriteStream")
             .trigger(availableNow=True)
             .start())

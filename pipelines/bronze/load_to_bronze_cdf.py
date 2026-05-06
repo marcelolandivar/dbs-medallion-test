@@ -45,7 +45,7 @@ def read_Traffic_Data(spk, cfg):
     rawTraffic_stream = (spk.readStream
         .format("cloudFiles")
         .option("cloudFiles.format","csv")
-        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawTrafficLoad/schemaInfer')
+        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawTrafficLoadCDF/schemaInfer')
         .option('header','true')
         .schema(schema)
         .load(cfg.landing+'/raw_traffic/')
@@ -75,7 +75,7 @@ def read_Road_Data(spk, cfg):
     rawRoads_stream = (spk.readStream
         .format("cloudFiles")
         .option("cloudFiles.format","csv")
-        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawRoadsLoad/schemaInfer')
+        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawRoadsLoadCDF/schemaInfer')
         .option('header','true')
         .schema(schema)
         .load(cfg.landing+'/raw_roads/')
@@ -100,7 +100,7 @@ def write_Traffic_Data(StreamingDF, cfg, tracker):
                     target_table='raw_traffic_cdf'
                 )
             )
-            .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoad/Checkpt')
+            .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoadCDF/Checkpt')
             .queryName('rawTrafficWriteStream')
             .trigger(availableNow=True)
             .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_traffic_cdf`"))
@@ -122,7 +122,7 @@ def write_Road_Data(StreamingDF, cfg, tracker):
                     target_table='raw_roads_cdf'
                 )
             )
-            .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoad/Checkpt')
+            .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoadCDF/Checkpt')
             .queryName('rawRoadsWriteStream')
             .trigger(availableNow=True)
             .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_roads_cdf`"))
