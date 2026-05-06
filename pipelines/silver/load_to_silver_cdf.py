@@ -29,7 +29,7 @@ def read_BronzeTrafficTable_CDF(spk, cfg, start_version=0):
 
 def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
     """Write traffic data to silver with metadata tracking"""
-    print('Writing the silver_traffic Data...') 
+    print('Writing the silver_traffic Data CDF...') 
 
     write_StreamSilver = (StreamingDF.writeStream
             .foreachBatch(
