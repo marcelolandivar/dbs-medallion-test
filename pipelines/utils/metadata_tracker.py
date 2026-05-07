@@ -87,7 +87,7 @@ class MetadataTracker:
             record_count = batch_df.count()
             # In write_batch method, before writing:
             table_name = f"`{catalog}`.`{schema}`.`{target_table}`"
-            if not spark.catalog.tableExists(table_name):
+            if not self.spark.catalog.tableExists(table_name):
                 batch_df.write.format("delta") \
                     .mode("overwrite") \
                     .option("delta.enableChangeDataFeed", "true") \
