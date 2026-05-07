@@ -48,7 +48,7 @@ def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
             .option("delta.enableChangeDataFeed", "true") 
             .queryName("SilverTrafficCDFWriteStream")
             .trigger(availableNow=True)
-            .start())
+            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`silver_traffic_cdf`"))
     
     write_StreamSilver.awaitTermination()
     print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_traffic_cdf` Success!')
@@ -95,7 +95,7 @@ def write_Roads_to_Silver(StreamingDF, cfg, tracker):
             .option("delta.enableChangeDataFeed", "true") 
             .queryName("SilverRoadsWriteCDFStream")
             .trigger(availableNow=True)
-            .start())
+            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`silver_roads_cdf`"))
     
     write_StreamSilver_R.awaitTermination()
     print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_roads_cdf` Success!')
