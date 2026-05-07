@@ -88,7 +88,7 @@ def read_Road_Data(spk, cfg):
     return rawRoads_stream
 
 def write_Traffic_Data(StreamingDF, cfg, tracker):
-    print(f'Writing data to {cfg.catalog} raw_traffic table', end='' )
+    print(f'Writing data to {cfg.catalog} raw_traffic_cdf table', end='' )
     write_Stream = (StreamingDF.writeStream
             .foreachBatch(
                 lambda df, batch_id: tracker.write_batch(

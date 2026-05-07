@@ -72,7 +72,7 @@ def read_BronzeRoadsTable_CDF(spk, cfg, start_version=0):
 
 def write_Roads_to_Silver(StreamingDF, cfg, tracker):
     """Write roads data to silver with metadata tracking"""
-    print('Writing the silver_roads Data...') 
+    print('Writing the silver_roads Data CDF...') 
 
     write_StreamSilver_R = (
         StreamingDF.writeStream
