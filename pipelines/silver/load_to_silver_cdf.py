@@ -37,9 +37,9 @@ def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
                     df,
                     batch_id,
                     source_layer="bronze",
-                    source_table="roads",
+                    source_table="raw_traffic_cdf",
                     target_layer="silver",
-                    target_table="silver_roads"
+                    target_table="silver_roads_cdf"
                 )
             )
             .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoadCDF/Checkpt/")
