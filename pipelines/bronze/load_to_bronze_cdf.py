@@ -101,7 +101,8 @@ def write_Traffic_Data(StreamingDF, cfg, tracker):
                 )
             )
             .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoadCDF/Checkpt')
-            .queryName('rawTrafficWriteStream')
+            .queryName('rawTrafficCDFWriteStream')
+            .option("delta.enableChangeDataFeed", "true") 
             .trigger(availableNow=True)
             .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_traffic_cdf`"))
     
@@ -110,7 +111,7 @@ def write_Traffic_Data(StreamingDF, cfg, tracker):
     print("****************************")    
 
 def write_Road_Data(StreamingDF, cfg, tracker):
-    print(f'Writing data to {cfg.catalog} raw_roads table', end='' )
+    print(f'Writing data to {cfg.catalog} raw_roads_cdf table', end='' )
     write_Data = (StreamingDF.writeStream
             .foreachBatch(
                 lambda df, batch_id: tracker.write_batch(
@@ -123,7 +124,8 @@ def write_Road_Data(StreamingDF, cfg, tracker):
                 )
             )
             .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoadCDF/Checkpt')
-            .queryName('rawRoadsWriteStream')
+            .queryName('rawRoadsCDFWriteStream')
+            .option("delta.enableChangeDataFeed", "true") 
             .trigger(availableNow=True)
             .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_roads_cdf`"))
     
