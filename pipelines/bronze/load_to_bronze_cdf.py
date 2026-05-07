@@ -98,7 +98,9 @@ def write_Traffic_Data(StreamingDF, cfg, tracker):
                     source_layer='raw',
                     source_table='csv_traffic',
                     target_layer='bronze',
-                    target_table='raw_traffic_cdf'
+                    target_table='raw_traffic_cdf',
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
                 )
             )
             .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoadCDF/Checkpt')
@@ -122,7 +124,9 @@ def write_Road_Data(StreamingDF, cfg, tracker):
                     source_layer='raw',
                     source_table='csv_roads',
                     target_layer='bronze',
-                    target_table='raw_roads_cdf'
+                    target_table='raw_roads_cdf',
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
                 )
             )
             .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoadCDF/Checkpt')

@@ -39,7 +39,9 @@ def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
                     source_layer="bronze",
                     source_table="raw_traffic_cdf",
                     target_layer="silver",
-                    target_table="silver_roads_cdf"
+                    target_table="silver_roads_cdf",
+                    catalog=cfg.catalog,  
+                    schema=cfg.schema  
                 )
             )
             .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoadCDF/Checkpt/")
@@ -84,7 +86,9 @@ def write_Roads_to_Silver(StreamingDF, cfg, tracker):
                     source_layer="bronze",
                     source_table="raw_roads_cdf",
                     target_layer="silver",
-                    target_table="silver_roads_cdf"
+                    target_table="silver_roads_cdf",
+                    catalog=cfg.catalog,  
+                    schema=cfg.schema  
                 )
             )
             .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoadCDF/Checkpt/")
