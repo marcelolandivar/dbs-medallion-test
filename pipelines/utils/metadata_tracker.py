@@ -87,7 +87,18 @@ class MetadataTracker:
             record_count = batch_df.count()
             # In write_batch method, before writing:
             table_name = f"`{catalog}`.`{schema}`.`{target_table}`"
-            if not self.spark.catalog.tableExists(table_name):
+
+            # Check if table exists, handling the case where metadata exists but Delta files are missing
+            table_exists = False
+            try:
+                table_exists = self.spark.catalog.tableExists(table_name)
+            except Exception as e:
+                # If tableExists throws an exception (e.g., DELTA_PATH_DOES_NOT_EXIST),
+                # treat it as if the table doesn't exist and needs to be created
+                print(f"⚠ Table check failed: {e}. Will recreate table.")
+                table_exists = False
+
+            if not table_exists:
                 batch_df.write.format("delta") \
                     .mode("overwrite") \
                     .option("delta.enableChangeDataFeed", "true") \

@@ -66,7 +66,7 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
             )
             .option('checkpointLocation',cfg.checkpoint+ "GoldTrafficLoadCDF/Checkpt/")
             .option("delta.enableChangeDataFeed", "true") 
-            .queryName("GoldTrafficWriteStream")
+            .queryName("GoldTrafficWriteCDFStream")
             .trigger(availableNow=True)
             .start())
     
