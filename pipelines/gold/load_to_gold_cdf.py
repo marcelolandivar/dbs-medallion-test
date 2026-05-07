@@ -93,7 +93,7 @@ def write_Roads_to_Gold(StreamingDF,cfg, tracker):
                 .option("delta.enableChangeDataFeed", "true") 
                 .queryName("GoldRoadsWriteCDFStream")
                 .trigger(availableNow=True)
-                .start())
+                .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`gold_roads_cdf`"))
     
     write_gold_roads.awaitTermination()
     print(f'Writing `{cfg.catalog}`.`{cfg.schema}`.`gold_roads_cdf` Success!')
@@ -149,7 +149,8 @@ def write_Gold_RoadAnalytics(StreamingDF, cfg, tracker):
             .option("delta.enableChangeDataFeed", "true") 
             .queryName("GoldRoadAnalyticsWriteCDFStream")
             .trigger(availableNow=True)
-            .start())
+            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`gold_road_analytics_cdf`")
+            .option("mergeSchema", "true"))
     
     write_Stream.awaitTermination()
     print('✓ Gold road_analytics write complete!')
