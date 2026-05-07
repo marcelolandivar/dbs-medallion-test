@@ -91,7 +91,7 @@ def write_Roads_to_Gold(StreamingDF,cfg, tracker):
             )
                 .option('checkpointLocation',cfg.checkpoint+ "GoldRoadsLoadCDF/Checkpt/")
                 .option("delta.enableChangeDataFeed", "true") 
-                .queryName("GoldRoadsWriteStream")
+                .queryName("GoldRoadsWriteCDFStream")
                 .trigger(availableNow=True)
                 .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`gold_roads`"))
     
@@ -147,7 +147,7 @@ def write_Gold_RoadAnalytics(StreamingDF, cfg, tracker):
             )
             .option('checkpointLocation', cfg.checkpoint + "/GoldRoadAnalyticsCDF/Checkpt/")
             .option("delta.enableChangeDataFeed", "true") 
-            .queryName("GoldRoadAnalyticsWriteStream")
+            .queryName("GoldRoadAnalyticsWriteCDFStream")
             .trigger(availableNow=True)
             .start())
     
@@ -192,7 +192,7 @@ def run_gold(env: str, tracker):
     # Create gold aggregates
     #df_gold_traffic = create_traffic_aggregates(df_FinalTraffic)
     write_Gold_Traffic(df_FinalTraffic, cfg, tracker)
-    write_Roads_to_Gold(df_FinalRoads, cfg)
+    write_Roads_to_Gold(df_FinalRoads, cfg, tracker)
     
     # Create gold analytics
     df_gold_analytics = create_road_analytics(df_FinalTraffic, df_FinalRoads)
