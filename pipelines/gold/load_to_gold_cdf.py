@@ -65,6 +65,7 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
                 )
             )
             .option('checkpointLocation',cfg.checkpoint+ "/GoldTrafficLoadCDF/Checkpt/")
+            .option("delta.enableChangeDataFeed", "true")
             .queryName("GoldTrafficWriteCDFStream")
             .trigger(availableNow=True)
             .start())
@@ -89,6 +90,7 @@ def write_Roads_to_Gold(StreamingDF,cfg, tracker):
                 )
             )
                 .option('checkpointLocation',cfg.checkpoint + "/GoldRoadsLoadCDF/Checkpt/")
+                .option("delta.enableChangeDataFeed", "true")
                 .queryName("GoldRoadsWriteCDFStream")
                 .trigger(availableNow=True)
                 .start())
@@ -146,6 +148,7 @@ def write_Gold_RoadAnalytics(StreamingDF, cfg, tracker):
             )
             .option('checkpointLocation', cfg.checkpoint + "/GoldRoadAnalyticsCDF/Checkpt/")
             .queryName("GoldRoadAnalyticsWriteCDFStream")
+            .option("delta.enableChangeDataFeed", "true")
             .trigger(availableNow=True)
             .start())
     
