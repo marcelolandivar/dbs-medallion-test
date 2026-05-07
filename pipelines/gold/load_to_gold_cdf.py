@@ -49,7 +49,7 @@ def read_SilverRoads_CDF(spk, cfg, start_version=0):
 
 def write_Gold_Traffic(StreamingDF, cfg, tracker):
     """Write to gold with metadata tracking"""
-    print('Writing gold_traffic')
+    print(f'Writing gold_traffic {cfg.catalog}.{cfg.schema}.gold_traffic_cdf...', end='')
     
     write_gold_traffic = (StreamingDF.writeStream
             .foreachBatch(
@@ -68,13 +68,13 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
             .option("delta.enableChangeDataFeed", "true") 
             .queryName("GoldTrafficWriteCDFStream")
             .trigger(availableNow=True)
-            .start())
+            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`gold_traffic_cdf`"))
     
     write_gold_traffic.awaitTermination()
     print('✓ Gold traffic_aggregates write complete!')
 
 def write_Roads_to_Gold(StreamingDF,cfg, tracker):
-    print('Writing the gold_roads Data : ',end='') 
+    print(f'Writing gold_roads {cfg.catalog}.{cfg.schema}.gold_roads_cdf...', end='') 
 
     write_gold_roads = (StreamingDF.writeStream
             .foreachBatch(
@@ -93,10 +93,10 @@ def write_Roads_to_Gold(StreamingDF,cfg, tracker):
                 .option("delta.enableChangeDataFeed", "true") 
                 .queryName("GoldRoadsWriteCDFStream")
                 .trigger(availableNow=True)
-                .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`gold_roads`"))
+                .start())
     
     write_gold_roads.awaitTermination()
-    print(f'Writing `{cfg.catalog}`.`{cfg.schema}`.`gold_roads` Success!')
+    print(f'Writing `{cfg.catalog}`.`{cfg.schema}`.`gold_roads_cdf` Success!')
 
 def create_traffic_aggregates(df_traffic):
     """Create gold-level traffic aggregations"""
@@ -140,7 +140,7 @@ def write_Gold_RoadAnalytics(StreamingDF, cfg, tracker):
                     source_layer="silver",
                     source_table="silver_roads_cdf",
                     target_layer="gold",
-                    target_table="road_analytics",
+                    target_table="gold_road_analytics_cdf",
                     catalog=cfg.catalog,
                     schema=cfg.schema
                 )
@@ -179,7 +179,7 @@ def run_gold(env: str, tracker):
         source_layer='silver',
         source_table='silver_roads_cdf',
         target_layer='gold',
-        target_table='road_analytics'
+        target_table='gold_road_analytics_cdf'
     )
     # Read silver data with CDF
     df_traffic = read_SilverTraffic_CDF(spark, cfg, start_version=last_traffic_version)
