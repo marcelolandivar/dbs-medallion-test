@@ -49,7 +49,7 @@ def read_SilverRoads_CDF(spk, cfg, start_version=0):
 
 def write_Gold_Traffic(StreamingDF, cfg, tracker):
     """Write to gold with metadata tracking"""
-    print('Writing gold_traffic')
+    print(f'Writing gold_traffic {cfg.catalog}.{cfg.schema}.gold_traffic_cdf...', end='')
     
     write_gold_traffic = (StreamingDF.writeStream
             .foreachBatch(
@@ -74,7 +74,7 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
     print('✓ Gold traffic_aggregates write complete!')
 
 def write_Roads_to_Gold(StreamingDF,cfg, tracker):
-    print('Writing the gold_roads Data : ',end='') 
+    print(f'Writing gold_roads {cfg.catalog}.{cfg.schema}.gold_roads_cdf...', end='') 
 
     write_gold_roads = (StreamingDF.writeStream
             .foreachBatch(
