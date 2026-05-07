@@ -68,7 +68,7 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
             .option("delta.enableChangeDataFeed", "true") 
             .queryName("GoldTrafficWriteCDFStream")
             .trigger(availableNow=True)
-            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`gold_traffic_cdf`"))
+            .start())
     
     write_gold_traffic.awaitTermination()
     print('✓ Gold traffic_aggregates write complete!')
