@@ -46,7 +46,7 @@ def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
             )
             .option('checkpointLocation', cfg.checkpoint + "/SilverTrafficLoadCDF/Checkpt/")
             .option("delta.enableChangeDataFeed", "true") 
-            .queryName("SilverTrafficWriteStream")
+            .queryName("SilverTrafficCDFWriteStream")
             .trigger(availableNow=True)
             .start())
     
@@ -93,12 +93,12 @@ def write_Roads_to_Silver(StreamingDF, cfg, tracker):
             )
             .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoadCDF/Checkpt/")
             .option("delta.enableChangeDataFeed", "true") 
-            .queryName("SilverRoadsWriteStream")
+            .queryName("SilverRoadsWriteCDFStream")
             .trigger(availableNow=True)
             .start())
     
     write_StreamSilver_R.awaitTermination()
-    print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_roads` Success!')
+    print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_roads_cdf` Success!')
 
 
 def run_silver(env: str, tracker):
