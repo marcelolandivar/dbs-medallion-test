@@ -89,14 +89,7 @@ def read_Road_Data(spk, cfg):
 
 def write_Traffic_Data(StreamingDF, cfg, tracker):
     print(f'Writing data to {cfg.catalog} raw_traffic_cdf table', end='' )
-
-    spark = SparkSession.getActiveSession()
-    spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS `{cfg.catalog}`.`{cfg.schema}`.`raw_traffic_cdf`
-        USING DELTA
-        TBLPROPERTIES (delta.enableChangeDataFeed = true)
-    """)
-
+    
     write_Stream = (StreamingDF.writeStream
             .foreachBatch(
                 lambda df, batch_id: tracker.write_batch(
@@ -120,14 +113,6 @@ def write_Traffic_Data(StreamingDF, cfg, tracker):
 
 def write_Road_Data(StreamingDF, cfg, tracker):
     print(f'Writing data to {cfg.catalog} raw_roads_cdf table', end='' )
-    
-    spark = SparkSession.getActiveSession()
-    spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS `{cfg.catalog}`.`{cfg.schema}`.`raw_roads_cdf`
-        USING DELTA
-        TBLPROPERTIES (delta.enableChangeDataFeed = true)
-    """)
-
     write_Data = (StreamingDF.writeStream
             .foreachBatch(
                 lambda df, batch_id: tracker.write_batch(
