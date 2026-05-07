@@ -64,7 +64,7 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
                     schema=cfg.schema    
                 )
             )
-            .option('checkpointLocation',cfg.checkpoint+ "GoldTrafficLoadCDF/Checkpt/")
+            .option('checkpointLocation',cfg.checkpoint+ "/GoldTrafficLoadCDF/Checkpt/")
             .queryName("GoldTrafficWriteCDFStream")
             .trigger(availableNow=True)
             .start())
@@ -88,11 +88,12 @@ def write_Roads_to_Gold(StreamingDF,cfg, tracker):
                     schema=cfg.schema
                 )
             )
-                .option('checkpointLocation',cfg.checkpoint+ "GoldRoadsLoadCDF/Checkpt/")
+                .option('checkpointLocation',cfg.checkpoint + "/GoldRoadsLoadCDF/Checkpt/")
                 .queryName("GoldRoadsWriteCDFStream")
                 .trigger(availableNow=True)
                 .start())
-    
+            
+
     write_gold_roads.awaitTermination()
     print(f'Writing `{cfg.catalog}`.`{cfg.schema}`.`gold_roads_cdf` Success!')
 
