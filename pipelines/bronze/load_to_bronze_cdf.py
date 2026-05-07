@@ -104,8 +104,9 @@ def write_Traffic_Data(StreamingDF, cfg, tracker):
             .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoadCDF/Checkpt')
             .queryName('rawTrafficCDFWriteStream')
             .option("delta.enableChangeDataFeed", "true") 
+            .option("mergeSchema", "true")
             .trigger(availableNow=True)
-            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_traffic_cdf`"))
+            .start()) 
     
     write_Stream.awaitTermination()
     print('Write Success')
@@ -127,8 +128,9 @@ def write_Road_Data(StreamingDF, cfg, tracker):
             .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoadCDF/Checkpt')
             .queryName('rawRoadsCDFWriteStream')
             .option("delta.enableChangeDataFeed", "true") 
+            .option("mergeSchema", "true")
             .trigger(availableNow=True)
-            .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_roads_cdf`"))
+            .start()) 
     
     write_Data.awaitTermination()
     print('Write Success')
