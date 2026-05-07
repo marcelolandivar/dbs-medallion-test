@@ -80,16 +80,13 @@ class MetadataTracker:
         except Exception as e:
             print(f"✗ Error updating metadata: {e}")
     
-    @classmethod
-    def write_batch(self, batch_df, batch_id, source_layer, source_table, target_layer, target_table):
+    def write_batch(self, batch_df, batch_id, source_layer, source_table, target_layer, target_table, catalog, schema):
+        """Write batch and track metadata"""
         if batch_df.count() > 0:
-            # Get current version of source table
-            source_version = self.get_last_version(source_layer, source_table, target_layer, target_table)
-
-            # Write to silver
+            # Write to target table
             record_count = batch_df.count()
             batch_df.write.format("delta").mode("append").saveAsTable(
-                f"`{self.catalog}`.`{target_layer}`.`{target_table}`"
+                f"`{catalog}`.`{schema}`.`{target_table}`"
             )
             
             # Update metadata
@@ -98,8 +95,10 @@ class MetadataTracker:
                 source_table=source_table,
                 target_layer=target_layer,
                 target_table=target_table,
-                version=source_version,
+                version=batch_id,
                 record_count=record_count,
                 status='SUCCESS'
             )
-    
+            print(f"✓ Batch {batch_id}: Wrote {record_count} records to {catalog}.{schema}.{target_table}")
+        else:
+            print(f"⊘ Batch {batch_id}: No records to write")

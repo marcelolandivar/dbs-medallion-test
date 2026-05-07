@@ -14,11 +14,11 @@ if __name__ == "__main__":
 
     # Get the environment from command-line argument (passed from job parameter)
     # Default to 'dev' if not provided
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--env", default="dev")
+    #parser = argparse.ArgumentParser()
+    #parser.add_argument("--env", default="dev")#
 
-    args = parser.parse_args()
-    env_var = args.env
+    #args = parser.parse_args()
+    env_var = "dev"
     print(f"Running with environment: {env_var}")
 
 
