@@ -85,10 +85,18 @@ class MetadataTracker:
         if batch_df.count() > 0:
             # Write to target table
             record_count = batch_df.count()
-            batch_df.write.format("delta").mode("append").saveAsTable(
-                f"`{catalog}`.`{schema}`.`{target_table}`"
-            )
-            
+            # In write_batch method, before writing:
+            table_name = f"`{catalog}`.`{schema}`.`{target_table}`"
+            if not spark.catalog.tableExists(table_name):
+                batch_df.write.format("delta") \
+                    .mode("overwrite") \
+                    .option("delta.enableChangeDataFeed", "true") \
+                    .saveAsTable(table_name)
+            else:
+                batch_df.write.format("delta") \
+                    .mode("append") \
+                    .saveAsTable(table_name)
+                
             # Update metadata
             self.update_version(
                 source_layer=source_layer,
