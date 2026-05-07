@@ -59,7 +59,9 @@ def write_Gold_Traffic(StreamingDF, cfg, tracker):
                     source_layer="silver",
                     source_table="silver_traffic_cdf",
                     target_layer="gold",
-                    target_table="gold_traffic_cdf"
+                    target_table="gold_traffic_cdf",
+                    catalog=cfg.catalog,  
+                    schema=cfg.schema    
                 )
             )
             .option('checkpointLocation',cfg.checkpoint+ "GoldTrafficLoadCDF/Checkpt/")
@@ -82,7 +84,9 @@ def write_Roads_to_Gold(StreamingDF,cfg, tracker):
                     source_layer="silver",
                     source_table="silver_roads_cdf",
                     target_layer="gold",
-                    target_table="gold_roads_cdf"
+                    target_table="gold_roads_cdf",
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
                 )
             )
                 .option('checkpointLocation',cfg.checkpoint+ "GoldRoadsLoadCDF/Checkpt/")
@@ -136,7 +140,9 @@ def write_Gold_RoadAnalytics(StreamingDF, cfg, tracker):
                     source_layer="silver",
                     source_table="silver_roads_cdf",
                     target_layer="gold",
-                    target_table="road_analytics"
+                    target_table="road_analytics",
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
                 )
             )
             .option('checkpointLocation', cfg.checkpoint + "/GoldRoadAnalyticsCDF/Checkpt/")
