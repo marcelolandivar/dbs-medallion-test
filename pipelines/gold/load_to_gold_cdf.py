@@ -196,7 +196,7 @@ def run_gold(env: str, tracker):
 
     # Create gold analytics
     df_gold_analytics = create_road_analytics(df_gold_traffic, df_FinalRoads)
-    write_Gold_RoadAnalytics(df_gold_analytics, cfg, tracker)
+    #write_Gold_RoadAnalytics(df_gold_analytics, cfg, tracker)
     
     print('\n=== Gold Processing Complete ===')
 
