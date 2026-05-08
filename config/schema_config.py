@@ -1,4 +1,4 @@
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, TimestampType
 
 def get_traffic_schema():
     schema = StructType([
@@ -25,7 +25,8 @@ def get_traffic_schema():
             StructField("LGV_Type",IntegerType()),
             StructField("HGV_Type",IntegerType()),
             StructField("EV_Car",IntegerType()),
-            StructField("EV_Bike",IntegerType())
+            StructField("EV_Bike",IntegerType()),
+            StructField('Extract_Time',TimestampType())
         ])
     return schema
 
@@ -34,6 +35,7 @@ def get_roads_schema():
         StructField('Road_ID',IntegerType()),
         StructField('Road_Category_Id',IntegerType()),
         StructField('Road_Category',StringType()),
-        StructField('Road_Type',StringType())
+        StructField('Road_Type',StringType()),
+        StructField('Extract_Time',TimestampType())
     ])
     return schema

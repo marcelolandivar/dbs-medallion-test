@@ -10,6 +10,16 @@ landing = f"{url}{env}/landing"
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC TRUNCATE TABLE dev_catalog.bronze.raw_traffic
+
+# COMMAND ----------
+
+dbutils.fs.rm("s3://amazn-s3-db-bckt/dev/checkpoints/rawTrafficLoad", True)
+dbutils.fs.rm("s3://amazn-s3-db-bckt/dev/checkpoints/rawRoadsLoad", True)
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC ## Creating a read_Traffic_Data() Function
@@ -164,4 +174,5 @@ write_Traffic_Data(read_Df,env)
 write_Road_Data(read_roads,env)
 
 # COMMAND ----------
+
 

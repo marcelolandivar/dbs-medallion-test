@@ -23,6 +23,7 @@ def write_Traffic_to_Silver(StreamingDF,cfg):
     write_StreamSilver = (write_streaming_ts.writeStream
                 .format('delta')
                 .option('checkpointLocation',cfg.checkpoint+ "/SilverTrafficLoad/Checkpt/")
+                .option("mergeSchema", "true")
                 .outputMode('append')
                 .queryName("SilverTrafficWriteStream")
                 .trigger(availableNow=True)
@@ -45,6 +46,7 @@ def write_Roads_to_Silver(StreamingDF,cfg):
     write_streaming_ts = StreamingDF.withColumn("ingested_at", current_timestamp())
     write_StreamSilver_R = (write_streaming_ts.writeStream
                 .format('delta')
+                .option("mergeSchema", "true")
                 .option('checkpointLocation',cfg.checkpoint+ "/SilverRoadsLoad/Checkpt/")
                 .outputMode('append')
                 .queryName("SilverRoadsWriteStream")

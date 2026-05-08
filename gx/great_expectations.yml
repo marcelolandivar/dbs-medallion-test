@@ -19,19 +19,19 @@ stores:
     class_name: ExpectationsStore
     store_backend:
       class_name: TupleFilesystemStoreBackend
-      base_directory: /dbfs/gx/expectations/
+      base_directory: s3://amazn-s3-db-bckt/gx_expectations/expectations/
 
   validations_store:
     class_name: ValidationsStore
     store_backend:
       class_name: TupleFilesystemStoreBackend
-      base_directory: /dbfs/gx/validations/
+      base_directory: s3://amazn-s3-db-bckt/gx_expectations/validations/
 
   checkpoint_store:
     class_name: CheckpointStore
     store_backend:
       class_name: TupleFilesystemStoreBackend
-      base_directory: /dbfs/gx/checkpoints/
+      base_directory: s3://amazn-s3-db-bckt/gx_expectations/checkpoints/
 
   evaluation_parameter_store:
     class_name: EvaluationParameterStore
@@ -46,6 +46,6 @@ data_docs_sites:
     class_name: SiteBuilder
     store_backend:
       class_name: TupleFilesystemStoreBackend
-      base_directory: /dbfs/gx/data_docs/
+      base_directory: s3://amazn-s3-db-bckt/gx_expectations/data_docs/
     site_index_builder:
       class_name: DefaultSiteIndexBuilder

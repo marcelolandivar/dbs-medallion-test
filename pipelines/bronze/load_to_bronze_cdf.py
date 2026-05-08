@@ -45,9 +45,8 @@ def read_Traffic_Data(spk, cfg):
     rawTraffic_stream = (spk.readStream
         .format("cloudFiles")
         .option("cloudFiles.format","csv")
-        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawTrafficLoad/schemaInfer')
+        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawTrafficLoadCDF/schemaInfer')
         .option('header','true')
-        .option("ignoreDeletes", "true")  
         .schema(schema)
         .load(cfg.landing+'/raw_traffic/')
         .withColumn("Extract_Time", current_timestamp()))
@@ -76,9 +75,8 @@ def read_Road_Data(spk, cfg):
     rawRoads_stream = (spk.readStream
         .format("cloudFiles")
         .option("cloudFiles.format","csv")
-        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawRoadsLoad/schemaInfer')
+        .option('cloudFiles.schemaLocation',f'{cfg.checkpoint}/rawRoadsLoadCDF/schemaInfer')
         .option('header','true')
-        .option("ignoreDeletes", "true")  
         .schema(schema)
         .load(cfg.landing+'/raw_roads/')
         .withColumn("Extract_Time", current_timestamp())
@@ -89,47 +87,67 @@ def read_Road_Data(spk, cfg):
 
     return rawRoads_stream
 
-def write_Traffic_Data(StreamingDF, cfg):
-    print(f'Writing data to {cfg.catalog} raw_traffic table', end='' )
+def write_Traffic_Data(StreamingDF, cfg, tracker):
+    print(f'Writing data to {cfg.catalog} raw_traffic_cdf table', end='' )
+    
     write_Stream = (StreamingDF.writeStream
-                    .format('delta')
-                    .option("mergeSchema", "true")
-                    .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoad/Checkpt')
-                    .outputMode('append')
-                    .queryName('rawTrafficWriteStream')
-                    .trigger(availableNow=True)
-                    .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_traffic`"))
+            .foreachBatch(
+                lambda df, batch_id: tracker.write_batch(
+                    df,
+                    batch_id,
+                    source_layer='raw',
+                    source_table='csv_traffic',
+                    target_layer='bronze',
+                    target_table='raw_traffic_cdf',
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
+                )
+            )
+            .option("checkpointLocation",cfg.checkpoint + '/rawTrafficLoadCDF/Checkpt')
+            .queryName('rawTrafficCDFWriteStream')
+            .option("delta.enableChangeDataFeed", "true") 
+            .option("mergeSchema", "true")
+            .trigger(availableNow=True)
+            .start()) 
     
     write_Stream.awaitTermination()
     print('Write Success')
     print("****************************")    
 
-def write_Road_Data(StreamingDF, cfg):
-    print(f'Writing data to {cfg.catalog} raw_roads table', end='' )
+def write_Road_Data(StreamingDF, cfg, tracker):
+    print(f'Writing data to {cfg.catalog} raw_roads_cdf table', end='' )
     write_Data = (StreamingDF.writeStream
-                    .format('delta')
-                    .option("mergeSchema", "true")
-                    .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoad/Checkpt')
-                    .outputMode('append')
-                    .queryName('rawRoadsWriteStream')
-                    .trigger(availableNow=True)
-                    .toTable(f"`{cfg.catalog}`.`{cfg.schema}`.`raw_roads`"))
+            .foreachBatch(
+                lambda df, batch_id: tracker.write_batch(
+                    df,
+                    batch_id,
+                    source_layer='raw',
+                    source_table='csv_roads',
+                    target_layer='bronze',
+                    target_table='raw_roads_cdf',
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
+                )
+            )
+            .option("checkpointLocation",cfg.checkpoint + '/rawRoadsLoadCDF/Checkpt')
+            .queryName('rawRoadsCDFWriteStream')
+            .option("delta.enableChangeDataFeed", "true") 
+            .option("mergeSchema", "true")
+            .trigger(availableNow=True)
+            .start()) 
     
     write_Data.awaitTermination()
     print('Write Success')
     print("****************************")    
 
-def run_bronze(env: str):
+def run_bronze(env: str, tracker):
 
     spark = SparkSession.getActiveSession()
     cfg = get_config(env, "bronze")
-
+    
     rawTraffic_stream = read_Traffic_Data(spark, cfg)
     rawRoads_stream = read_Road_Data(spark, cfg)
 
-    write_Traffic_Data(rawTraffic_stream, cfg)
-    write_Road_Data(rawRoads_stream, cfg)
-    run_id = os.getenv("DATABRICKS_JOB_RUN_ID", "local")
-    print(f"Ingestion complete. run_id={run_id}")
-
+    write_Traffic_Data(rawTraffic_stream, cfg, tracker)
+    write_Road_Data(rawRoads_stream, cfg, tracker)
 

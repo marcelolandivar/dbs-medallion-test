@@ -1,7 +1,7 @@
 resources:
   jobs:
-    Job-medallion-test:
-      name: Job-medallion-test
+    Job-medallion-test-road-cdf:
+      name: Job-medallion-test-road-cdf
       queue:
         enabled: true
       run_as:
@@ -9,11 +9,11 @@ resources:
       tasks:
          - task_key: script_task
            spark_python_task:
-             python_file: ../main.py
+             python_file: ../main_cdf.py
              parameters: ["--env", "{{job.parameters.env}}"]
              source: WORKSPACE
            environment_key: Default
-      
+           
       parameters:
         - name: env
           default: "dev"
