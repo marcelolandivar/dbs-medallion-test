@@ -1,163 +1,204 @@
 # =========================
-# pipelines/silver/silver_orders.py (with metadata tracking)
+# pipelines/gold/gold_orders.py (with metadata tracking)
 # =========================
+import os
+
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, current_timestamp
+from pyspark.sql.functions import col, current_timestamp, to_date, sum as _sum, avg as _avg, count as _count
 from config.config import get_config
-from common.transformations import Motor_Count, create_TransformedTime, ev_Count, handle_NULLs, remove_Dups, road_Category, road_Type
-from common.validations import validate_not_null, drop_duplicates, safe_transform
+from common.transformations import create_LoadTime, create_VehicleIntensity
+from common.validations import safe_transform
 
-
-def read_BronzeTrafficTable_CDF(spk, cfg, start_version=0):
-    """Read Change Data Feed from bronze traffic table"""
-    print(f'Reading CDF from {cfg.catalog}.bronze.raw_traffic_cdf (starting version: {start_version})')
+def read_SilverTraffic_CDF(spk, cfg, start_version=0):
+    """Read CDF from silver traffic table"""
+    print(f'Reading CDF from silver.silver_traffic_cdf (starting version: {start_version})')
     
-    df_bronzeTraffic = (spk.readStream
+    df_silverTraffic = (spk.readStream
                         .format("delta")
                         .option("readChangeFeed", "true")
                         .option("startingVersion", start_version)
-                        .table(f"`{cfg.catalog}`.`bronze`.`raw_traffic_cdf`"))
+                        .table(f"`{cfg.catalog}`.`silver`.`silver_traffic_cdf`"))
     
-    # Filter for inserts and updates only (exclude deletes)
-    df_bronzeTraffic = (df_bronzeTraffic
+    # Filter for inserts and updates
+    df_silverTraffic = (df_silverTraffic
                         .filter(col("_change_type").isin(['insert', 'update_postimage']))
                         .drop('_change_type', '_commit_version', '_commit_timestamp'))
     
-    print(f'✓ Reading {cfg.catalog}.bronze.raw_traffic_cdf Success!')
-    return df_bronzeTraffic
+    print('✓ Reading silver_traffic Success!')
+    return df_silverTraffic
 
 
-def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
-    """Write traffic data to silver with metadata tracking"""
-    print('Writing the silver_traffic Data CDF...') 
-
-    write_StreamSilver = (StreamingDF.writeStream
-            .foreachBatch(
-                lambda df, batch_id: tracker.write_batch(
-                    df,
-                    batch_id,
-                    source_layer="bronze",
-                    source_table="raw_traffic_cdf",
-                    target_layer="silver",
-                    target_table="silver_traffic_cdf",
-                    catalog=cfg.catalog,  
-                    schema=cfg.schema  
-                )
-            )
-            .option('checkpointLocation', cfg.checkpoint + "/SilverTrafficLoadCDF/Checkpt/")
-            .option("delta.enableChangeDataFeed", "true") 
-            .option("delta.mergeSchema", "true")
-            .queryName("SilverTrafficCDFWriteStream")
-            .trigger(availableNow=True)
-            .start())
+def read_SilverRoads_CDF(spk, cfg, start_version=0):
+    """Read CDF from silver roads table"""
+    print(f'Reading CDF from silver.silver_roads_cdf (starting version: {start_version})')
     
-    write_StreamSilver.awaitTermination()
-    print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_traffic_cdf` Success!')
-
-
-def read_BronzeRoadsTable_CDF(spk, cfg, start_version=0):
-    """Read Change Data Feed from bronze roads table"""
-    print(f'Reading CDF from {cfg.catalog}.bronze.raw_roads_cdf (starting version: {start_version})')
-    
-    df_bronzeRoads = (spk.readStream
+    df_silverRoads = (spk.readStream
                       .format("delta")
                       .option("readChangeFeed", "true")
                       .option("startingVersion", start_version)
-                      .table(f"`{cfg.catalog}`.`bronze`.`raw_roads_cdf`"))
+                      .table(f"`{cfg.catalog}`.`silver`.`silver_roads_cdf`"))
     
-    # Filter for inserts and updates only
-    df_bronzeRoads = (df_bronzeRoads
+    # Filter for inserts and updates
+    df_silverRoads = (df_silverRoads
                       .filter(col("_change_type").isin(['insert', 'update_postimage']))
                       .drop('_change_type', '_commit_version', '_commit_timestamp'))
     
-    print(f'✓ Reading {cfg.catalog}.bronze.raw_roads_cdf Success!')
-    return df_bronzeRoads
+    print('✓ Reading silver_roads Success!')
+    return df_silverRoads
 
 
-def write_Roads_to_Silver(StreamingDF, cfg, tracker):
-    """Write roads data to silver with metadata tracking"""
-    print('Writing the silver_roads Data CDF...') 
-
-    write_StreamSilver_R = (
-        StreamingDF.writeStream
+def write_Traffic_to_Gold(StreamingDF, cfg, tracker):
+    """Write to gold with metadata tracking"""
+    print(f'Writing gold_traffic {cfg.catalog}.{cfg.schema}.gold_traffic_cdf...', end='')
+    
+    write_gold_traffic = (StreamingDF.writeStream
             .foreachBatch(
                 lambda df, batch_id: tracker.write_batch(
                     df,
                     batch_id,
-                    source_layer="bronze",
-                    source_table="raw_roads_cdf",
-                    target_layer="silver",
-                    target_table="silver_roads_cdf",
-                    catalog=cfg.catalog,  
-                    schema=cfg.schema  
+                    source_layer="silver",
+                    source_table="silver_traffic_cdf",
+                    target_layer="gold",
+                    target_table="gold_traffic_cdf",
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
                 )
             )
-            .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoadCDF/Checkpt/")
+            .option('checkpointLocation',cfg.checkpoint+ "/GoldTrafficLoadCDF/Checkpt/")
             .option("delta.enableChangeDataFeed", "true") 
-            .option("delta.mergeSchema", "true")
-            .queryName("SilverRoadsWriteCDFStream")
+            .queryName("GoldTrafficWriteCDFStream")
             .trigger(availableNow=True)
             .start())
     
-    write_StreamSilver_R.awaitTermination()
-    print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_roads_cdf` Success!')
+    write_gold_traffic.awaitTermination()
+    print('✓ Gold traffic_aggregates write complete!')
 
-def run_silver(env: str, tracker):
+def write_Roads_to_Gold(StreamingDF,cfg, tracker):
+    print(f'Writing gold_roads {cfg.catalog}.{cfg.schema}.gold_roads_cdf...', end='')
+
+    write_gold_roads = (StreamingDF.writeStream
+            .foreachBatch(
+                lambda df, batch_id: tracker.write_batch(
+                    df,
+                    batch_id,
+                    source_layer="silver",
+                    source_table="silver_roads_cdf",
+                    target_layer="gold",
+                    target_table="gold_roads_cdf",
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
+                )
+            )
+            .option('checkpointLocation',cfg.checkpoint+ "/GoldRoadsLoadCDF/Checkpt/")
+            .option("delta.enableChangeDataFeed", "true") 
+            .queryName("GoldRoadsWriteCDFStream")
+            .trigger(availableNow=True)
+            .start())
+    
+    write_gold_roads.awaitTermination()
+    print(f'Writing `{cfg.catalog}`.`{cfg.schema}`.`gold_roads_cdf` Success!')
+
+def create_traffic_aggregates(df_traffic):
+    """Create gold-level traffic aggregations"""
+    df_gold = (df_traffic
+                .withColumn('date', to_date(col("Count_date"), "yyyy-MM-dd HH:mm"))
+                .withColumn('total_vehicles',
+                            col('Electric_Vehicles_Count') + col('Two_wheeled_motor_vehicles') + col('Cars_and_taxis') + col('Buses_and_coaches')
+                            )
+                .groupBy('Road_Category_Id', 'region_name', 'date')
+                .agg(
+                   _sum('total_vehicles').alias('total_daily_vehicles'),
+                   _avg('total_vehicles').alias('avg_hourly_vehicles'),
+                   _count('*').alias('hourly_readings')
+               ))
+    
+    return df_gold
+
+def create_road_analytics(df_traffic, df_roads):
+    """Join traffic and roads for gold analytics"""
+    df_gold = (df_traffic.alias("traffic")
+               .join(df_roads.alias("roads"), 'Road_Category_Id', 'inner')
+               .groupBy('road_category', 'road_type', 'traffic.region_name')
+               .agg(
+                   _sum('total_vehicles').alias('total_vehicles_by_road_type'),
+                   _avg('total_vehicles').alias('avg_vehicles_by_road_type'),
+                   _count('*').alias('reading_count')
+               )
+               .withColumn('gold_processed_at', current_timestamp()))
+    
+    return df_gold
+
+
+def write_Gold_RoadAnalytics(StreamingDF, cfg, tracker):
+    """Write road analytics to gold with metadata tracking"""
+    print('Writing gold_road_analytics...')
+    
+    write_Stream = (StreamingDF.writeStream
+            .foreachBatch(
+                lambda df, batch_id: tracker.write_batch(
+                    df,
+                    batch_id,
+                    source_layer="silver",
+                    source_table="silver_roads_cdf",
+                    target_layer="gold",
+                    target_table="gold_road_analytics_cdf",
+                    catalog=cfg.catalog,
+                    schema=cfg.schema
+                )
+            )
+            .option('checkpointLocation', cfg.checkpoint + "/GoldRoadAnalyticsCDF/Checkpt/")
+            .option("delta.enableChangeDataFeed", "true") 
+            .queryName("GoldRoadAnalyticsWriteCDFStream")
+            .trigger(availableNow=True)
+            .start())
+    
+    write_Stream.awaitTermination()
+    print('✓ Gold road_analytics write complete!')
+
+def run_gold(env: str, tracker):
     spark = SparkSession.getActiveSession()
-    cfg = get_config(env, "silver")
-
-    #### Traffic Data ####
-    print('\n=== Processing Traffic Data ===')
+    cfg = get_config(env, "gold")
     
-    # Get last processed version
+    print('\n=== Processing Gold Layer ===')
+    
+    # Get last processed versions
     last_traffic_version = tracker.get_last_version(
-        source_layer='bronze',
-        source_table='raw_traffic_cdf',
-        target_layer='silver',
-        target_table='silver_traffic_cdf'
+        source_layer='silver',
+        source_table='silver_traffic_cdf',
+        target_layer='gold',
+        target_table='gold_traffic_cdf'
     )
     
-    # Read CDF from last processed version
-    df_traffic_data = read_BronzeTrafficTable_CDF(spark, cfg, start_version=last_traffic_version)
-
-
-    # Then in run_silver:
-    df_traffic_data = safe_transform(df_traffic_data, remove_Dups, "remove_Dups")
-    df_traffic_data = safe_transform(
-        df_traffic_data,  # First argument: the DataFrame
-        lambda x: handle_NULLs(x, x.schema.names),  # Second: transform function
-        "handle_NULLs"  # Third: name
-    )
-    df_traffic_data = safe_transform(df_traffic_data, ev_Count, "ev_Count")
-    df_traffic_data = safe_transform(df_traffic_data, Motor_Count, "Motor_Count")
-    df_traffic_data = create_TransformedTime(df_traffic_data)
-    df_traffic_data = df_traffic_data.withColumn('silver_processed_at', current_timestamp())
-
-    write_Traffic_to_Silver(df_traffic_data, cfg, tracker)
-
-    #### Roads Data ####
-    print('\n=== Processing Roads Data ===')
-    
-    # Get last processed version
     last_roads_version = tracker.get_last_version(
-        source_layer='bronze',
-        source_table='raw_roads_cdf',
-        target_layer='silver',
-        target_table='silver_roads_cdf'
+        source_layer='silver',
+        source_table='silver_roads_cdf',
+        target_layer='gold',
+        target_table='gold_roads_cdf'
     )
     
-    # Read CDF from last processed version
-    df_roads_data = read_BronzeRoadsTable_CDF(spark, cfg, start_version=last_roads_version)
-    df_roads_data = safe_transform(df_roads_data, remove_Dups, "remove_Dups")
-    df_traffic_data = safe_transform(
-        df_roads_data,  
-        lambda x: handle_NULLs(x, x.schema.names),  
-        "handle_NULLs" 
+    last_roads_analytics_version = tracker.get_last_version(
+        source_layer='silver',
+        source_table='silver_roads_cdf',
+        target_layer='gold',
+        target_table='gold_road_analytics_cdf'
     )
-    df_roads_data = safe_transform(df_roads_data, road_Category, "road_Category")
-    df_roads_data = safe_transform(df_roads_data, road_Type, "road_Type")
-    df_roads_data = df_roads_data.withColumn('silver_processed_at', current_timestamp())
+    # Read silver data with CDF
+    df_traffic = read_SilverTraffic_CDF(spark, cfg, start_version=last_traffic_version)
+    df_roads = read_SilverRoads_CDF(spark, cfg, start_version=last_roads_version)
+    
+    df_vehicle = safe_transform(df_traffic, create_VehicleIntensity, "create_VehicleIntensity")
+    df_FinalRoads = create_LoadTime(df_roads)
+    df_FinalTraffic = create_LoadTime(df_vehicle)
+    # Create gold aggregates
+    df_gold_traffic = create_traffic_aggregates(df_FinalTraffic)
+    write_Roads_to_Gold(df_FinalRoads, cfg, tracker)
+    write_Traffic_to_Gold(df_FinalTraffic, cfg, tracker)
 
-    write_Roads_to_Silver(df_roads_data, cfg, tracker)
+    # Create gold analytics
+    df_gold_analytics = create_road_analytics(df_gold_traffic, df_FinalRoads)
+    write_Gold_RoadAnalytics(df_gold_analytics, cfg, tracker)
     
-    print('\n=== Silver Processing Complete ===')
+    print('\n=== Gold Processing Complete ===')
+
+    run_id = os.getenv("DATABRICKS_JOB_RUN_ID", "local")
+    print(f"Ingestion complete. run_id={run_id}")

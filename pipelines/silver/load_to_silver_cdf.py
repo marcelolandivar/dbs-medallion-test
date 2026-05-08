@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, current_timestamp
 from config.config import get_config
 from common.transformations import Motor_Count, create_TransformedTime, ev_Count, handle_NULLs, remove_Dups, road_Category, road_Type
-from common.validations import validate_not_null, drop_duplicates
+from common.validations import validate_not_null, drop_duplicates, safe_transform
 
 
 def read_BronzeTrafficTable_CDF(spk, cfg, start_version=0):
@@ -46,6 +46,7 @@ def write_Traffic_to_Silver(StreamingDF, cfg, tracker):
             )
             .option('checkpointLocation', cfg.checkpoint + "/SilverTrafficLoadCDF/Checkpt/")
             .option("delta.enableChangeDataFeed", "true") 
+            .option("delta.mergeSchema", "true")
             .queryName("SilverTrafficCDFWriteStream")
             .trigger(availableNow=True)
             .start())
@@ -93,13 +94,13 @@ def write_Roads_to_Silver(StreamingDF, cfg, tracker):
             )
             .option('checkpointLocation', cfg.checkpoint + "/SilverRoadsLoadCDF/Checkpt/")
             .option("delta.enableChangeDataFeed", "true") 
+            .option("delta.mergeSchema", "true")
             .queryName("SilverRoadsWriteCDFStream")
             .trigger(availableNow=True)
             .start())
     
     write_StreamSilver_R.awaitTermination()
     print(f'✓ Writing `{cfg.catalog}`.`{cfg.schema}`.`silver_roads_cdf` Success!')
-
 
 def run_silver(env: str, tracker):
     spark = SparkSession.getActiveSession()
@@ -118,11 +119,17 @@ def run_silver(env: str, tracker):
     
     # Read CDF from last processed version
     df_traffic_data = read_BronzeTrafficTable_CDF(spark, cfg, start_version=last_traffic_version)
-    df_traffic_data = remove_Dups(df_traffic_data)
-    all_columns_traffic = df_traffic_data.schema.names
-    df_traffic_data = handle_NULLs(df_traffic_data, all_columns_traffic)
-    df_traffic_data = ev_Count(df_traffic_data)
-    df_traffic_data = Motor_Count(df_traffic_data)
+
+
+    # Then in run_silver:
+    df_traffic_data = safe_transform(df_traffic_data, remove_Dups, "remove_Dups")
+    df_traffic_data = safe_transform(
+        df_traffic_data,  # First argument: the DataFrame
+        lambda x: handle_NULLs(x, x.schema.names),  # Second: transform function
+        "handle_NULLs"  # Third: name
+    )
+    df_traffic_data = safe_transform(df_traffic_data, ev_Count, "ev_Count")
+    df_traffic_data = safe_transform(df_traffic_data, Motor_Count, "Motor_Count")
     df_traffic_data = create_TransformedTime(df_traffic_data)
     df_traffic_data = df_traffic_data.withColumn('silver_processed_at', current_timestamp())
 
@@ -141,11 +148,14 @@ def run_silver(env: str, tracker):
     
     # Read CDF from last processed version
     df_roads_data = read_BronzeRoadsTable_CDF(spark, cfg, start_version=last_roads_version)
-    df_roads_data = remove_Dups(df_roads_data)
-    all_columns_roads = df_roads_data.schema.names
-    df_roads_data = handle_NULLs(df_roads_data, all_columns_roads)
-    df_roads_data = road_Category(df_roads_data)
-    df_roads_data = road_Type(df_roads_data)
+    df_roads_data = safe_transform(df_roads_data, remove_Dups, "remove_Dups")
+    df_traffic_data = safe_transform(
+        df_roads_data,  
+        lambda x: handle_NULLs(x, x.schema.names),  
+        "handle_NULLs" 
+    )
+    df_roads_data = safe_transform(df_roads_data, road_Category, "road_Category")
+    df_roads_data = safe_transform(df_roads_data, road_Type, "road_Type")
     df_roads_data = df_roads_data.withColumn('silver_processed_at', current_timestamp())
 
     write_Roads_to_Silver(df_roads_data, cfg, tracker)
