@@ -85,6 +85,7 @@ class MetadataTracker:
         if batch_df.count() > 0:
             # Write to target table
             record_count = batch_df.count()
+            print(f"record count {record_count}")
             # In write_batch method, before writing:
             table_name = f"`{catalog}`.`{schema}`.`{target_table}`"
 
